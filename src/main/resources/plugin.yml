@@ -1,0 +1,9 @@
+name: ScriptedQuests
+version: '${version}'
+main: net.brian.scriptedquests.ScriptedQuests
+api-version: 1.18
+commands:
+  sQuest:
+depend:
+  - MythicMobs
+  - PlayerDataSync
