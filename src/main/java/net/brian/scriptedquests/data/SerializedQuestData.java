@@ -4,8 +4,8 @@ import java.util.Optional;
 
 public class SerializedQuestData {
 
-    private String objectiveID = null;
-    private String objectiveData = null;
+    private final String objectiveID;
+    private String objectiveData = "";
 
     public SerializedQuestData(String objectiveID,String data){
             this.objectiveID = objectiveID;
@@ -15,8 +15,8 @@ public class SerializedQuestData {
     public SerializedQuestData(String objectiveID){
             this.objectiveID = objectiveID;
     }
-    public Optional<String> getObjectiveData() {
-            return Optional.ofNullable(objectiveData);
+    public String getObjectiveData() {
+            return objectiveData;
         }
     public String getObjectiveID() {
             return objectiveID;

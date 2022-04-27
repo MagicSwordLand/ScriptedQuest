@@ -18,6 +18,7 @@ public class CommandManager implements CommandExecutor {
         this.plugin = plugin;
         plugin.getCommand("sQuest").setExecutor(this);
         subCommands.add(new ListObjectives(plugin));
+        subCommands.add(new ResetCommand(plugin));
     }
 
 

@@ -32,6 +32,11 @@ public abstract class Quest {
                     onStart(player);
                     it.next().getValue().start(player);
                 }
+                else {
+                    onEnd(player);
+                    data.addFinishQuest(questID);
+                    data.removeQuest(questID);
+                };
             }
         });
     }

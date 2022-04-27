@@ -50,19 +50,15 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
         cachedData.remove(player.getUniqueId());
     }
 
-    public void loadPlayer(Player player){
-        PlayerQuestDataImpl.get(player.getUniqueId())
-                .flatMap(data-> data.getObjectiveData(quest.getQuestID(), objectiveID))
-                .ifPresent(dataString-> cachedData.put(player.getUniqueId(),gson.fromJson(dataString,getDataClass())));
-    }
+
 
     public Optional<T> getData(UUID uuid){
         return Optional.ofNullable(cachedData.get(uuid));
     }
 
-    @EventHandler
-    public void onDataLoadComplete(PlayerDataFetchComplete event){
-        loadPlayer(event.getPlayer());
+    @Override
+    public void cachePlayer(Player player,String args){
+        cachedData.put(player.getUniqueId(),gson.fromJson(args,getDataClass()));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

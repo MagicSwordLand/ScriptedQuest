@@ -2,12 +2,17 @@ package net.brian.scriptedquests.data;
 
 import net.brian.playerdatasync.PlayerDataSync;
 import net.brian.playerdatasync.data.PlayerData;
+import net.brian.playerdatasync.data.gson.PostProcessable;
+import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.api.data.PlayerQuestData;
+import net.brian.scriptedquests.api.quests.QuestManager;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
 
-public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData {
+public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData, PostProcessable {
 
     private final HashMap<String,SerializedQuestData> serializedQuestData = new HashMap<>();
     private final Set<String> finishedQuestIDs = new HashSet<>();
@@ -16,12 +21,12 @@ public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData {
         super(uuid);
     }
 
-    public Optional<String> getObjectiveData(String quest, String objective){
+    public String getObjectiveData(String quest, String objective){
         SerializedQuestData data = serializedQuestData.get(quest);
         if(data != null){
             return data.getObjectiveData();
         }
-        return Optional.empty();
+        return null;
     }
 
 
@@ -62,6 +67,23 @@ public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData {
 
     public static Optional<PlayerQuestDataImpl> get(UUID uuid){
         return PlayerDataSync.getInstance().getData(uuid,PlayerQuestDataImpl.class);
+    }
+
+
+    @Override
+    public void gsonPostDeserialize() {
+        QuestManager questManager = ScriptedQuests.getInstance().getQuestManager();
+        Player player = Bukkit.getPlayer(uuid);
+        serializedQuestData.forEach((questID,serializedData)->{
+            questManager.getQuest(questID).flatMap(quest -> quest.getObjective(serializedData.getObjectiveID()))
+                    .ifPresent(objective -> objective.cachePlayer(player,serializedData.getObjectiveData()));
+        });
+
+    }
+
+    @Override
+    public void gsonPostSerialize() {
+
     }
 
 

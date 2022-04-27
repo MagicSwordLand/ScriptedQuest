@@ -1,6 +1,7 @@
 package net.brian.scriptedquests.api.objectives;
 
 
+import net.brian.playerdatasync.events.PlayerDataFetchComplete;
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.data.SerializedQuestData;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
@@ -40,6 +41,7 @@ public abstract class QuestObjective implements Listener {
     public void start(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
             data.setQuestData(quest.getQuestID(),new SerializedQuestData(objectiveID));
+            onlinePlayers.add(player);
         });
     }
 
@@ -56,6 +58,10 @@ public abstract class QuestObjective implements Listener {
         });
     }
 
+
+    public void cachePlayer(Player player,String args){
+        onlinePlayers.add(player);
+    }
 
 
     @EventHandler

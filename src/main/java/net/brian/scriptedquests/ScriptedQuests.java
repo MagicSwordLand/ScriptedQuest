@@ -5,6 +5,7 @@ import net.brian.scriptedquests.api.quests.QuestManager;
 import net.brian.scriptedquests.commands.CommandManager;
 import net.brian.scriptedquests.conversations.ConversationManager;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
+import net.brian.scriptedquests.demo.conversation.DemoConversation;
 import net.brian.scriptedquests.quests.QuestManagerImpl;
 import net.brian.scriptedquests.starter.NPCQuestStarter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,7 +25,7 @@ public final class ScriptedQuests extends JavaPlugin {
         questManager = new QuestManagerImpl(this);
         new CommandManager(this);
         conversationManager = new ConversationManager(this);
-
+        conversationManager.registerConversation(6,new DemoConversation(questManager).get());
         new NPCQuestStarter();
     }
 
