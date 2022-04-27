@@ -1,9 +1,9 @@
 package net.brian.scriptedquests;
 
 import net.brian.playerdatasync.PlayerDataSync;
-import net.brian.scriptedquests.api.QuestManager;
+import net.brian.scriptedquests.api.quests.QuestManager;
 import net.brian.scriptedquests.commands.CommandManager;
-import net.brian.scriptedquests.conversation.ConversationManager;
+import net.brian.scriptedquests.conversations.ConversationManager;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.quests.QuestManagerImpl;
 import net.brian.scriptedquests.starter.NPCQuestStarter;

@@ -1,6 +1,8 @@
-package net.brian.scriptedquests.quests;
+package net.brian.scriptedquests.api.quests;
 
 
+import net.brian.scriptedquests.api.conditions.Condition;
+import net.brian.scriptedquests.conversations.PlayerOption;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import org.bukkit.entity.Player;
@@ -18,7 +20,7 @@ public abstract class Quest {
     }
 
 
-    public void registerObjective(QuestObjective objective){
+    public void pushObjective(QuestObjective objective){
         objectives.put(objective.getObjectiveID(),objective);
     }
 
@@ -76,7 +78,28 @@ public abstract class Quest {
     }
 
 
+    public PlayerOption getStartOption(String message, Runnable action, boolean canRedo, Condition... conditions){
+        return new PlayerOption(message,((player, npc) -> {
+            this.startQuest(player);
+            if(action != null){
+                action.run();
+            }
+        }),true,player -> {
+            Optional<PlayerQuestDataImpl> optData = PlayerQuestDataImpl.get(player.getUniqueId());
+            if(optData.isPresent()){
+                PlayerQuestDataImpl data = optData.get();
+                if(data.isDoing(questID)) return false;
+                if(!canRedo && data.hasFinished(questID)) return false;
+                return Condition.test(player,conditions);
+            }
+            return false;
+        });
+    }
 
+
+    public PlayerOption getStartOption(String message,boolean canRedo,Condition... conditions){
+        return getStartOption(message,null,canRedo,conditions);
+    }
 
 
     public String getQuestID() {

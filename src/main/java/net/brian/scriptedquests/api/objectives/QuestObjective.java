@@ -2,9 +2,10 @@ package net.brian.scriptedquests.api.objectives;
 
 
 import net.brian.scriptedquests.ScriptedQuests;
+import net.brian.scriptedquests.data.SerializedQuestData;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.api.conditions.Condition;
-import net.brian.scriptedquests.quests.Quest;
+import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,10 +37,9 @@ public abstract class QuestObjective implements Listener {
 
 
 
-
     public void start(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
-            data.setQuestData(quest.getQuestID(),new SerializedQuestData(quest.getQuestID()));
+            data.setQuestData(quest.getQuestID(),new SerializedQuestData(objectiveID));
         });
     }
 
@@ -57,12 +57,8 @@ public abstract class QuestObjective implements Listener {
     }
 
 
-   @EventHandler
-   public void onJoin(PlayerJoinEvent event){
-        onlinePlayers.add(event.getPlayer());
-   }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
         onlinePlayers.remove(event.getPlayer());
     }

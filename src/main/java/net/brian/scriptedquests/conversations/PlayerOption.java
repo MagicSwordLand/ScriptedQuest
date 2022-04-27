@@ -1,4 +1,4 @@
-package net.brian.scriptedquests.conversation;
+package net.brian.scriptedquests.conversations;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.brian.scriptedquests.api.conditions.Condition;
@@ -9,11 +9,21 @@ public class PlayerOption {
     Condition[] conditions;
     String message;
     Result result;
+    boolean end;
 
-    public PlayerOption(String message, Result result,Condition... conditions){
+    public PlayerOption(String message, Result result,boolean end,Condition... conditions){
         this.message = message;
         this.result = result;
         this.conditions = conditions;
+        this.end = end;
+    }
+
+    public PlayerOption(String message, Result result,Condition... conditions){
+        this(message,result,false,conditions);
+    }
+
+    public PlayerOption(String message,boolean end,Condition... conditions){
+        this(message,((player, npc) -> {}),end,conditions);
     }
 
     public PlayerOption(String message,Condition... conditions){
@@ -44,5 +54,9 @@ public class PlayerOption {
             }
         }
         return true;
+    }
+
+    public boolean shouldEnd(){
+        return end;
     }
 }

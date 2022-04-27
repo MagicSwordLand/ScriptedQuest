@@ -2,12 +2,13 @@ package net.brian.scriptedquests.objectives;
 
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
-import net.brian.scriptedquests.quests.Quest;
+import net.brian.scriptedquests.api.quests.Quest;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class ListenObjective extends QuestObjective {
     String[] text;
     int npcID;
     int delayTick;
-    List<Player> players = new ArrayList<>();
+    List<Player> listeningPlayer = new ArrayList<>();
 
     public ListenObjective(Quest quest, String objectiveID,int npcID,int delayTick,String... text) {
         super(quest, objectiveID);
@@ -31,14 +32,17 @@ public class ListenObjective extends QuestObjective {
         this(quest,objectiveID,npcID,40,text);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onClick(NPCRightClickEvent event){
         Player player = event.getClicker();
         if(event.getNPC().getId() == npcID && playerIsDoing(player)){
-            if(players.contains(player)){
+            if(playerIsDoing(player)){
+                event.setCancelled(true);
+            }
+            if(listeningPlayer.contains(player)){
                 return;
             }
-            players.add(player);
+            listeningPlayer.add(player);
             final int[] index = new int[]{0};
             NPC npc = CitizensAPI.getNPCRegistry().getById(npcID);
             new BukkitRunnable() {

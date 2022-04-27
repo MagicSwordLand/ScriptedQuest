@@ -2,15 +2,11 @@ package net.brian.scriptedquests.objectives;
 
 import net.brian.scriptedquests.api.objectives.ObjectiveData;
 import net.brian.scriptedquests.api.objectives.PersistentObjective;
-import net.brian.scriptedquests.api.objectives.QuestObjective;
-import net.brian.scriptedquests.quests.Quest;
+import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
-
-import java.util.Optional;
-import java.util.UUID;
 
 public class BreakBlockObjective extends PersistentObjective<BreakBlockObjective.BreakProfile> {
 

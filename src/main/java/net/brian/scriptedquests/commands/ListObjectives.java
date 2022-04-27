@@ -2,7 +2,7 @@ package net.brian.scriptedquests.commands;
 
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
-import net.brian.scriptedquests.api.QuestManager;
+import net.brian.scriptedquests.api.quests.QuestManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

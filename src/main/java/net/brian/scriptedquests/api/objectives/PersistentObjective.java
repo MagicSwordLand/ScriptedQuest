@@ -2,9 +2,10 @@ package net.brian.scriptedquests.api.objectives;
 
 import com.google.gson.Gson;
 import net.brian.playerdatasync.events.PlayerDataFetchComplete;
+import net.brian.scriptedquests.data.SerializedQuestData;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.api.conditions.Condition;
-import net.brian.scriptedquests.quests.Quest;
+import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -33,7 +34,7 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
         T data = newObjectiveData();
         cachedData.put(player.getUniqueId(),data);
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(playerData->{
-            playerData.setQuestData(quest.getQuestID(), new SerializedQuestData(quest.getQuestID(),data.toString()));
+            playerData.setQuestData(quest.getQuestID(), new SerializedQuestData(objectiveID,data.toString()));
         });
     }
 

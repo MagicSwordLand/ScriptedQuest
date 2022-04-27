@@ -1,17 +1,19 @@
 package net.brian.scriptedquests.quests;
 
 import net.brian.scriptedquests.ScriptedQuests;
-import net.brian.scriptedquests.api.QuestManager;
-import net.brian.scriptedquests.quests.demo.BreakDiasyQuest;
-import net.brian.scriptedquests.quests.demo.KillZombieQuest;
-import net.brian.scriptedquests.quests.demo.MilkQuest;
+import net.brian.scriptedquests.api.quests.Quest;
+import net.brian.scriptedquests.api.quests.QuestManager;
+import net.brian.scriptedquests.demo.quests.BreakDiasyQuest;
+import net.brian.scriptedquests.demo.quests.KillZombieQuest;
+import net.brian.scriptedquests.demo.quests.MilkQuest;
+import net.brian.scriptedquests.demo.quests.TestQuest;
 
 import java.util.*;
 import java.util.Optional;
 
 public class QuestManagerImpl implements QuestManager {
 
-    Map<String ,Quest> quests = new HashMap<>();
+    Map<String , Quest> quests = new HashMap<>();
 
 
     public QuestManagerImpl(ScriptedQuests plugin){
@@ -30,7 +32,7 @@ public class QuestManagerImpl implements QuestManager {
 
     @Override
     public void register(Quest quest) {
-        quests.put(quest.questID,quest);
+        quests.put(quest.getQuestID(),quest);
     }
 
 }

@@ -2,15 +2,13 @@ package net.brian.scriptedquests.starter;
 
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.api.conditions.Condition;
-import net.brian.scriptedquests.quests.Quest;
+import net.brian.scriptedquests.api.quests.Quest;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.block.data.type.Scaffolding;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import java.awt.desktop.QuitResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

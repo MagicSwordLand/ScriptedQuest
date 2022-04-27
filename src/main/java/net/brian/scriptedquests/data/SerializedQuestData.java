@@ -1,4 +1,4 @@
-package net.brian.scriptedquests.api.objectives;
+package net.brian.scriptedquests.data;
 
 import java.util.Optional;
 

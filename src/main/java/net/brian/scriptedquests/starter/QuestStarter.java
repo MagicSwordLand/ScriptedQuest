@@ -1,11 +1,8 @@
 package net.brian.scriptedquests.starter;
 
-import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.api.conditions.Condition;
-import net.brian.scriptedquests.quests.Quest;
-import org.bukkit.Bukkit;
+import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 public class QuestStarter{
 

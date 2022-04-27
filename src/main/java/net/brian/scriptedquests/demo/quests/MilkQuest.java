@@ -1,6 +1,6 @@
-package net.brian.scriptedquests.quests.demo;
+package net.brian.scriptedquests.demo.quests;
 
-import net.brian.scriptedquests.quests.Quest;
+import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.entity.Player;
 
 public class MilkQuest extends Quest {
@@ -20,4 +20,5 @@ public class MilkQuest extends Quest {
     public void onEnd(Player player) {
         player.sendMessage("你完成了milk任務");
     }
+
 }

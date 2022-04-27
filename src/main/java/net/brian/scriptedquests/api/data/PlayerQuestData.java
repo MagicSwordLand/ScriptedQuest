@@ -1,10 +1,9 @@
-package net.brian.scriptedquests.api;
+package net.brian.scriptedquests.api.data;
 
 import net.brian.playerdatasync.PlayerDataSync;
-import net.brian.scriptedquests.api.objectives.SerializedQuestData;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
+import net.brian.scriptedquests.data.SerializedQuestData;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;

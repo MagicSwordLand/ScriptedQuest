@@ -1,7 +1,7 @@
-package net.brian.scriptedquests.quests.demo;
+package net.brian.scriptedquests.demo.quests;
 
 import net.brian.scriptedquests.objectives.BreakBlockObjective;
-import net.brian.scriptedquests.quests.Quest;
+import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -12,7 +12,7 @@ public class BreakDiasyQuest extends Quest {
     public BreakDiasyQuest() {
         super(ID);
         BreakBlockObjective obj = new BreakBlockObjective(this,"break", Material.OXEYE_DAISY,5);
-        registerObjective(obj);
+        pushObjective(obj);
     }
 
     @Override

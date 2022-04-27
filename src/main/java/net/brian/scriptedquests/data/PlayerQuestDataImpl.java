@@ -2,8 +2,7 @@ package net.brian.scriptedquests.data;
 
 import net.brian.playerdatasync.PlayerDataSync;
 import net.brian.playerdatasync.data.PlayerData;
-import net.brian.scriptedquests.api.PlayerQuestData;
-import net.brian.scriptedquests.api.objectives.SerializedQuestData;
+import net.brian.scriptedquests.api.data.PlayerQuestData;
 
 import java.util.*;
 

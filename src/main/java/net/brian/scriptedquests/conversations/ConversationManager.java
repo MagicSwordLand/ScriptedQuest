@@ -1,8 +1,8 @@
-package net.brian.scriptedquests.conversation;
+package net.brian.scriptedquests.conversations;
 
 import net.brian.scriptedquests.ScriptedQuests;
-import net.brian.scriptedquests.api.QuestManager;
-import net.brian.scriptedquests.conversation.conversations.DemoConversation;
+import net.brian.scriptedquests.api.quests.QuestManager;
+import net.brian.scriptedquests.demo.conversation.DemoConversation;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.entity.Player;
@@ -18,22 +18,21 @@ import java.util.HashMap;
 
 public class ConversationManager implements Listener {
 
-    double maxDistance = 5;
-    HashMap<Player,NPCResponse> pendingResponses = new HashMap<>();
+    private final QuestManager questManager;
 
-    HashMap<Integer,NPCResponse> responseMap = new HashMap<>();
-    QuestManager questManager;
+    private double maxDistance = 5;
+    private final HashMap<Player, NPCQuestion> pendingResponses = new HashMap<>();
+    private final HashMap<Integer, NPCQuestion> responseMap = new HashMap<>();
 
     public ConversationManager(ScriptedQuests plugin){
         plugin.getServer().getPluginManager().registerEvents(this,plugin);
         questManager = plugin.getQuestManager();
-        responseMap.put(6,new DemoConversation(questManager).get());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST,ignoreCancelled = true)
     public void onNPCClick(NPCRightClickEvent event){
         if(!inConversation(event.getClicker())){
-            NPCResponse response = responseMap.get(event.getNPC().getId());
+            NPCQuestion response = responseMap.get(event.getNPC().getId());
             if(response != null){
                 response.send(event.getClicker());
             }
@@ -41,16 +40,16 @@ public class ConversationManager implements Listener {
     }
 
 
-    public void cachePending(Player player,NPCResponse npcResponse){
-        pendingResponses.put(player,npcResponse);
+    public void cachePending(Player player, NPCQuestion npcQuestion){
+        pendingResponses.put(player, npcQuestion);
     }
 
     @EventHandler
     public void onInputOption(PlayerCommandPreprocessEvent event){
         if(event.getMessage().startsWith("/squestpickoption")){
             event.setCancelled(true);
-            NPCResponse npcResponse = pendingResponses.get(event.getPlayer());
-            if(npcResponse == null || npcResponse.getNPC() == null) {
+            NPCQuestion npcQuestion = pendingResponses.get(event.getPlayer());
+            if(npcQuestion == null || npcQuestion.getNPC() == null) {
                 event.getPlayer().sendMessage("無法回覆此對話");
                 return;
             }
@@ -59,10 +58,11 @@ public class ConversationManager implements Listener {
             if(cmd.length>=2){
                 try {
                     int option = Integer.parseInt(cmd[1]);
-                    if(npcResponse.getPlayerOptions().size() > option){
-                        npcResponse.getOption(event.getPlayer(), option)
-                                .ifPresent(respnse->{
-                                    respnse.result.process(event.getPlayer(),npcResponse.getNPC());
+                    if(npcQuestion.getPlayerOptions().size() > option){
+                        npcQuestion.getOption(event.getPlayer(), option)
+                                .ifPresent(playerOption->{
+                                    pendingResponses.remove(event.getPlayer());
+                                    playerOption.result.process(event.getPlayer(), npcQuestion.getNPC());
                                 });
                     }
                 }catch (NumberFormatException ignore){
@@ -73,9 +73,9 @@ public class ConversationManager implements Listener {
 
     @EventHandler
     public void onWalkAway(PlayerMoveEvent event){
-        NPCResponse npcResponse = pendingResponses.get(event.getPlayer());
-        if(npcResponse != null){
-            NPC npc = npcResponse.getNPC();
+        NPCQuestion npcQuestion = pendingResponses.get(event.getPlayer());
+        if(npcQuestion != null){
+            NPC npc = npcQuestion.getNPC();
             if(npc != null){
                 if(maxDistance <event.getPlayer().getLocation().distance(npc.getEntity().getLocation())){
                     event.getPlayer().sendMessage("距離對話者太遠，已停止對話");
@@ -113,6 +113,9 @@ public class ConversationManager implements Listener {
     }
 
 
+    public void registerConversation(int npcID,NPCQuestion question){
+        responseMap.put(npcID,question);
+    }
 
 
 

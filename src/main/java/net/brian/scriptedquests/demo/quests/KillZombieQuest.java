@@ -1,7 +1,7 @@
-package net.brian.scriptedquests.quests.demo;
+package net.brian.scriptedquests.demo.quests;
 
 import net.brian.scriptedquests.objectives.KillMobsObjectives;
-import net.brian.scriptedquests.quests.Quest;
+import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.entity.Player;
 
 public class KillZombieQuest extends Quest {
@@ -10,7 +10,8 @@ public class KillZombieQuest extends Quest {
     public KillZombieQuest() {
         super(ID);
         KillMobsObjectives killMobsObjectives = new KillMobsObjectives("kill",this,"SkeletonKing",5);
-        registerObjective(killMobsObjectives);
+        pushObjective(killMobsObjectives);
+        killMobsObjectives.setMobName("超op怪物");
     }
 
     @Override
