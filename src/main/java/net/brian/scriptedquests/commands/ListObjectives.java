@@ -1,9 +1,8 @@
 package net.brian.scriptedquests.commands;
 
 import net.brian.scriptedquests.ScriptedQuests;
-import net.brian.scriptedquests.api.QuestManager;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
-import net.brian.scriptedquests.quests.Quest;
+import net.brian.scriptedquests.api.QuestManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -18,15 +17,14 @@ public class ListObjectives extends SubCommand{
     @Override
     public void onCommand(CommandSender sender, String[] args) {
         if(sender instanceof Player player){
+            player.sendMessage("當前任務目標");
             PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
-                data.getOnGoingQuestDatas().forEach((key,map)->{
-                    questManager.getQuest(key).ifPresent(quest -> {
-                        for (String objID : map.keySet()) {
-                            player.sendMessage(quest.getObjective(objID).getInstruction(player));
-                        }
-                    });
+                data.getOnGoingQuests().forEach((questID,objID)->{
+                   questManager.getQuest(questID).flatMap(quest -> quest.getObjective(objID))
+                           .ifPresent(objective -> sender.sendMessage(objective.getInstruction(player)));
                 });
             });
+            player.sendMessage("");
         }
     }
 

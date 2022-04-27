@@ -26,15 +26,6 @@ public class ConversationObjective extends QuestObjective {
         }));
     }
 
-    @Override
-    public Class<?> getDataClass() {
-        return Object.class;
-    }
-
-    @Override
-    public Object newObjectiveData() {
-        return new Object();
-    }
 
     @Override
     public String getInstruction(Player player) {
@@ -46,7 +37,7 @@ public class ConversationObjective extends QuestObjective {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onClickNPC(NPCRightClickEvent event){
         Player player = event.getClicker();
-        if(event.getNPC().getId() == npcResponse.getNpcID() && playerIsOngoing(player)){
+        if(event.getNPC().getId() == npcResponse.getNpcID() && playerIsDoing(player)){
             if(!ScriptedQuests.getInstance().getConversationManager().inConversation(player)){
                 npcResponse.send(player);
                 event.setCancelled(true);

@@ -3,7 +3,6 @@ package net.brian.scriptedquests.conversation;
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.api.QuestManager;
 import net.brian.scriptedquests.conversation.conversations.DemoConversation;
-import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.entity.Player;
@@ -14,7 +13,6 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.HashMap;
 

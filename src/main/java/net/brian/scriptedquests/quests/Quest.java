@@ -1,8 +1,8 @@
 package net.brian.scriptedquests.quests;
 
+
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
-import net.brian.scriptedquests.starter.QuestStarter;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -10,7 +10,6 @@ import java.util.*;
 public abstract class Quest {
 
     protected final String questID;
-
 
     private final LinkedHashMap<String,QuestObjective> objectives = new LinkedHashMap<>();
 
@@ -25,12 +24,11 @@ public abstract class Quest {
 
     public void startQuest(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
-            if(!data.hasFinished(questID) && !data.getOnGoingQuests().contains(questID)){
+            if(!data.isDoing(questID)){
                 Iterator<Map.Entry<String ,QuestObjective>> it = objectives.entrySet().iterator();
                 if(it.hasNext()){
                     onStart(player);
                     it.next().getValue().start(player);
-                    data.addOnGoingQuest(questID);
                 }
             }
         });
@@ -47,8 +45,9 @@ public abstract class Quest {
                         it.next().getValue().start(player);
                     }
                     else{
-                        data.finishQuest(questID);
                         onEnd(player);
+                        data.addFinishQuest(questID);
+                        data.removeQuest(questID);
                     }
                     break;
                 }
@@ -58,7 +57,7 @@ public abstract class Quest {
 
     public void cancel(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
-            data.removeQuestData(questID);
+            data.removeQuest(questID);
             objectives.values().forEach(objective -> objective.cancel(player));
         });
     }
@@ -72,8 +71,8 @@ public abstract class Quest {
     }
 
 
-    public QuestObjective getObjective(String id){
-        return objectives.get(id);
+    public Optional<QuestObjective> getObjective(String id){
+        return Optional.ofNullable(objectives.get(id));
     }
 
 

@@ -1,31 +1,26 @@
 package net.brian.scriptedquests.api.objectives;
 
 
-import com.google.gson.Gson;
-import net.brian.playerdatasync.PlayerDataSync;
-import net.brian.playerdatasync.events.PlayerDataFetchComplete;
 import net.brian.scriptedquests.ScriptedQuests;
-import net.brian.scriptedquests.api.conditions.Condition;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
+import net.brian.scriptedquests.api.conditions.Condition;
 import net.brian.scriptedquests.quests.Quest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.*;
 
 public abstract class QuestObjective implements Listener {
 
-
-    protected final static Gson gson = new Gson();
-
     protected final String objectiveID;
     protected final Quest quest;
     protected final Condition[] conditions;
-    protected final Map<UUID,Object> cachedPlayerData = new HashMap<>();
+    protected final List<Player> onlinePlayers = new ArrayList<>();
 
     public QuestObjective(Quest quest,String objectiveID){
         this(quest,objectiveID,player -> true);
@@ -39,25 +34,17 @@ public abstract class QuestObjective implements Listener {
     }
 
 
-    public abstract Class<?> getDataClass();
-    public abstract Object newObjectiveData();
+
 
 
     public void start(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
-            if(getDataClass() != null){
-                Object newData = newObjectiveData();
-                cachedPlayerData.put(player.getUniqueId(),newData);
-                data.setObjectiveData(quest.getQuestID(), objectiveID,gson.toJson(newData));
-            }
-            else {
-                cachedPlayerData.put(player.getUniqueId(), null);
-            }
+            data.setQuestData(quest.getQuestID(),new SerializedQuestData(quest.getQuestID()));
         });
     }
 
     public void cancel(Player player){
-        cachedPlayerData.remove(player.getUniqueId());
+        onlinePlayers.remove(player);
     }
 
 
@@ -65,44 +52,29 @@ public abstract class QuestObjective implements Listener {
         UUID uuid = player.getUniqueId();
         PlayerQuestDataImpl.get(uuid).ifPresent(data->{
             quest.finish(player,objectiveID);
-            data.removeObjective(quest.getQuestID(), objectiveID);
-            cachedPlayerData.remove(uuid);
+            onlinePlayers.remove(player);
         });
     }
 
-    @EventHandler
-    public void onDataLoadComplete(PlayerDataFetchComplete event){
-        UUID uuid = event.getPlayer().getUniqueId();
-        PlayerQuestDataImpl.get(uuid)
-                .ifPresent(data->{
-                    if(getDataClass() != null){
-                        data.getObjectiveData(quest.getQuestID(), objectiveID).ifPresent(dataString->{
-                            cachedPlayerData.put(uuid,gson.fromJson(dataString,getDataClass()));
-                        });
-                    }
-                    else if(data.isOnGoingObj(quest.getQuestID(), objectiveID)){
-                        cachedPlayerData.put(uuid,null);
-                    }
-                });
-    }
+
+   @EventHandler
+   public void onJoin(PlayerJoinEvent event){
+        onlinePlayers.add(event.getPlayer());
+   }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerQuit(PlayerQuitEvent event){
-        if(getDataClass() != null){
-            Object obj = cachedPlayerData.get(event.getPlayer().getUniqueId());
-            if(obj != null){
-                PlayerQuestDataImpl.get(event.getPlayer().getUniqueId()).ifPresent(data->{
-                    String dataString = PlayerDataSync.getGson().toJson(obj);
-                    data.setObjectiveData(quest.getQuestID(),objectiveID,dataString);
-                });
-            }
-        }
+        onlinePlayers.remove(event.getPlayer());
     }
+
 
     public String getObjectiveID() {
         return objectiveID;
     }
 
+    public Quest getParent() {
+        return quest;
+    }
 
     public abstract String getInstruction(Player player);
 
@@ -116,8 +88,8 @@ public abstract class QuestObjective implements Listener {
         return true;
     }
 
-    public boolean playerIsOngoing(Player player){
-        return cachedPlayerData.containsKey(player.getUniqueId());
+    public boolean playerIsDoing(Player player){
+        return onlinePlayers.contains(player);
     }
 
 }

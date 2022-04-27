@@ -2,6 +2,8 @@ package net.brian.scriptedquests.objectives;
 
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import net.brian.scriptedquests.api.conditions.Condition;
+import net.brian.scriptedquests.api.objectives.ObjectiveData;
+import net.brian.scriptedquests.api.objectives.PersistentObjective;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.quests.Quest;
 import org.bukkit.entity.Player;
@@ -10,7 +12,7 @@ import org.bukkit.event.EventHandler;
 import java.util.Optional;
 import java.util.UUID;
 
-public class KillMobsObjectives extends QuestObjective {
+public class KillMobsObjectives extends PersistentObjective<KillMobsObjectives.KillCount> {
 
 
     private final String mobType;
@@ -41,12 +43,12 @@ public class KillMobsObjectives extends QuestObjective {
 
 
     @Override
-    public Class<?> getDataClass() {
+    public Class<KillCount> getDataClass() {
         return KillCount.class;
     }
 
     @Override
-    public Object newObjectiveData() {
+    public KillCount newObjectiveData() {
         return new KillCount(0);
     }
 
@@ -55,20 +57,13 @@ public class KillMobsObjectives extends QuestObjective {
         return mobName +getData(player.getUniqueId()).map(data->data.amount).orElse(-1) +"/"+amount;
     }
 
-    static class KillCount{
+    static class KillCount extends ObjectiveData {
         int amount;
         public KillCount(int amount){
             this.amount = amount;
         }
     };
 
-    public Optional<KillCount> getData(UUID uuid){
-        Object data = cachedPlayerData.get(uuid);
-        if(data != null){
-            return Optional.of((KillCount) data);
-        }
-        return Optional.empty();
-    }
 
 
 }

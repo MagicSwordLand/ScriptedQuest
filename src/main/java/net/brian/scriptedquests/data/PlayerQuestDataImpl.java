@@ -1,88 +1,69 @@
 package net.brian.scriptedquests.data;
 
 import net.brian.playerdatasync.PlayerDataSync;
+import net.brian.playerdatasync.data.PlayerData;
+import net.brian.scriptedquests.api.PlayerQuestData;
+import net.brian.scriptedquests.api.objectives.SerializedQuestData;
 
 import java.util.*;
 
-public class PlayerQuestDataImpl {
 
-    Map<String,HashMap<String,String>> onGoingQuestDatas = new HashMap<>();
+public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData {
 
-    List<String> finishedQuest = new ArrayList<>();
+    private final HashMap<String,SerializedQuestData> serializedQuestData = new HashMap<>();
+    private final Set<String> finishedQuestIDs = new HashSet<>();
 
-    List<String> tags = new ArrayList<>();
-
-
-
-
-    public void removeQuestData(String questID){
-        onGoingQuestDatas.remove(questID);
+    public PlayerQuestDataImpl(UUID uuid) {
+        super(uuid);
     }
 
-    public void finishQuest(String questID){
-        finishedQuest.add(questID);
-        onGoingQuestDatas.remove(questID);
-    }
-
-    public void addTag(String tag){
-        tags.add(tag);
-    }
-
-    public void removeTag(String tag){
-        tags.remove(tag);
-    }
-
-    public boolean hasTag(String tag){
-        return tags.contains(tag);
-    }
-
-
-
-    public Optional<String> getObjectiveData(String questID, String objectiveID){
-        HashMap<String,String> objectiveDatas = this.onGoingQuestDatas.get(questID);
-        if(objectiveDatas != null){
-            return Optional.ofNullable(objectiveDatas.get(objectiveID));
+    public Optional<String> getObjectiveData(String quest, String objective){
+        SerializedQuestData data = serializedQuestData.get(quest);
+        if(data != null){
+            return data.getObjectiveData();
         }
         return Optional.empty();
     }
 
-    public void setObjectiveData(String questID,String objectiveID,String objData){
-        HashMap<String, String> objMap = onGoingQuestDatas.computeIfAbsent(questID, k -> new HashMap<>());
-        objMap.put(objectiveID,objData);
+
+
+
+
+    @Override
+    public void removeQuest(String questID) {
+        serializedQuestData.remove(questID);
     }
 
-    public void addOnGoingQuest(String questID){
-        onGoingQuestDatas.put(questID,new HashMap<>());
+    @Override
+    public void setQuestData(String questID, SerializedQuestData data) {
+        serializedQuestData.put(questID,data);
+    }
+
+    @Override
+    public boolean isDoing(String questID) {
+        return serializedQuestData.containsKey(questID);
+    }
+
+    @Override
+    public void addFinishQuest(String questID) {
+        finishedQuestIDs.add(questID);
+    }
+
+    @Override
+    public boolean hasFinished(String questID){
+        return finishedQuestIDs.contains(questID);
+    }
+
+    @Override
+    public Map<String, String> getOnGoingQuests() {
+        Map<String,String> map = new HashMap<>();
+        serializedQuestData.forEach((id,questData)-> map.put(id,questData.getObjectiveID()));
+        return map;
     }
 
     public static Optional<PlayerQuestDataImpl> get(UUID uuid){
         return PlayerDataSync.getInstance().getData(uuid,PlayerQuestDataImpl.class);
     }
 
-    public Set<String> getOnGoingQuests(){
-        return onGoingQuestDatas.keySet();
-    }
 
-    public boolean hasFinished(String questID){
-        return finishedQuest.contains(questID);
-    }
-
-
-    public Map<String, HashMap<String, String>> getOnGoingQuestDatas() {
-        return onGoingQuestDatas;
-    }
-    public boolean isOnGoingObj(String questID,String objID){
-        HashMap<String,String> objData = onGoingQuestDatas.get(questID);
-        if(objData != null){
-            return objData.containsKey(objID);
-        }
-        else return false;
-    }
-
-    public void removeObjective(String questID,String objectiveID){
-        HashMap<String,String> objMap = onGoingQuestDatas.get(questID);
-        if(objMap  != null){
-            objMap.remove(objectiveID);
-        }
-    }
 }

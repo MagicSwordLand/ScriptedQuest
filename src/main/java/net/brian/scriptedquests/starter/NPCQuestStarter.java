@@ -33,12 +33,9 @@ public class NPCQuestStarter implements Listener {
         Player player = event.getClicker();
         if(list != null){
             list.forEach(starter -> {
-                for (Condition condition : starter.conditions) {
-                    if(!condition.test(player)){
-                        return;
-                    }
+                if(starter.valid(player)){
+                    starter.quest.startQuest(player);
                 }
-                starter.quest.startQuest(player);
             });
         }
     }

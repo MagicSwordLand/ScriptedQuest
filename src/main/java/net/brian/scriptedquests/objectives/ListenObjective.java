@@ -34,7 +34,7 @@ public class ListenObjective extends QuestObjective {
     @EventHandler
     public void onClick(NPCRightClickEvent event){
         Player player = event.getClicker();
-        if(event.getNPC().getId() == npcID && playerIsOngoing(player)){
+        if(event.getNPC().getId() == npcID && playerIsDoing(player)){
             if(players.contains(player)){
                 return;
             }
@@ -45,10 +45,13 @@ public class ListenObjective extends QuestObjective {
                 @Override
                 public void run() {
                     if(text.length > index[0]){
-                        if(npc != null){
+                        if(npc != null && player.isOnline()){
                             player.sendMessage(npc.getName()+": "+text[index[0]]);
+                            index[0]++;
                         }
-                        index[0]++;
+                        else{
+                            cancel();
+                        }
                     }
                     else {
                         finish(player);
@@ -61,15 +64,6 @@ public class ListenObjective extends QuestObjective {
 
 
 
-    @Override
-    public Class<?> getDataClass() {
-        return Object.class;
-    }
-
-    @Override
-    public Object newObjectiveData() {
-        return new Object();
-    }
 
     @Override
     public String getInstruction(Player player) {

@@ -1,5 +1,7 @@
 package net.brian.scriptedquests.objectives;
 
+import net.brian.scriptedquests.api.objectives.ObjectiveData;
+import net.brian.scriptedquests.api.objectives.PersistentObjective;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.quests.Quest;
 import org.bukkit.Material;
@@ -10,7 +12,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import java.util.Optional;
 import java.util.UUID;
 
-public class BreakBlockObjective extends QuestObjective {
+public class BreakBlockObjective extends PersistentObjective<BreakBlockObjective.BreakProfile> {
 
     final int amount;
     Material type;
@@ -35,12 +37,12 @@ public class BreakBlockObjective extends QuestObjective {
     }
 
     @Override
-    public Class<?> getDataClass() {
+    public Class<BreakProfile> getDataClass() {
         return BreakProfile.class;
     }
 
     @Override
-    public Object newObjectiveData() {
+    public BreakProfile newObjectiveData() {
         return new BreakProfile(0);
     }
 
@@ -51,19 +53,12 @@ public class BreakBlockObjective extends QuestObjective {
         }).orElse("資料載入中");
     }
 
-    static class BreakProfile{
+    static class BreakProfile extends ObjectiveData {
         int amount;
         BreakProfile(int amount){
             this.amount = amount;
         }
     }
 
-    public Optional<BreakProfile> getData(UUID uuid){
-        Object data = cachedPlayerData.get(uuid);
-        if(data != null){
-            return Optional.of((BreakProfile) data);
-        }
-        return Optional.empty();
-    }
 
 }

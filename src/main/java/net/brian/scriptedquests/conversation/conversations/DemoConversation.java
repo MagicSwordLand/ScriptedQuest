@@ -4,7 +4,6 @@ import net.brian.scriptedquests.api.QuestManager;
 import net.brian.scriptedquests.conversation.NPCResponse;
 import net.brian.scriptedquests.conversation.PlayerOption;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
-import org.bukkit.entity.Player;
 
 public class DemoConversation {
 
