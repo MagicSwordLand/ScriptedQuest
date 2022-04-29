@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class QuestManagerImpl implements QuestManager {
 
-    Map<String , Quest> quests = new HashMap<>();
+    private final Map<String , Quest> quests = new HashMap<>();
 
 
     public QuestManagerImpl(ScriptedQuests plugin){
@@ -32,6 +32,10 @@ public class QuestManagerImpl implements QuestManager {
 
     @Override
     public void register(Quest quest) {
+        Quest quest1 = quests.get(quest.getQuestID());
+        if(quest1 != null){
+            quest1.unregister();
+        }
         quests.put(quest.getQuestID(),quest);
     }
 

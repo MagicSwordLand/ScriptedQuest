@@ -42,6 +42,10 @@ public class ListenObjective extends QuestObjective {
             if(listeningPlayer.contains(player)){
                 return;
             }
+            if(ScriptedQuests.getInstance().getConversationManager().inConversation(player)){
+                player.sendMessage("請結束上一個對話才可繼續");
+                return;
+            }
             listeningPlayer.add(player);
             final int[] index = new int[]{0};
             NPC npc = CitizensAPI.getNPCRegistry().getById(npcID);
@@ -54,11 +58,13 @@ public class ListenObjective extends QuestObjective {
                             index[0]++;
                         }
                         else{
+                            listeningPlayer.remove(player);
                             cancel();
                         }
                     }
                     else {
                         finish(player);
+                        listeningPlayer.remove(player);
                         cancel();
                     }
                 }

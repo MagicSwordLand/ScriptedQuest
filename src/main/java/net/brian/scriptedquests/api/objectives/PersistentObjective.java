@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 public abstract class PersistentObjective<T extends ObjectiveData> extends QuestObjective{
 
@@ -51,13 +52,13 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
     }
 
 
-
     public Optional<T> getData(UUID uuid){
         return Optional.ofNullable(cachedData.get(uuid));
     }
 
     @Override
     public void cachePlayer(Player player,String args){
+        super.cachePlayer(player,args);
         cachedData.put(player.getUniqueId(),gson.fromJson(args,getDataClass()));
     }
 
@@ -71,4 +72,9 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
         }
     }
 
+    @Override
+    public PersistentObjective<T> setInstruction(Function<Player,String> instruction){
+        this.instruction = instruction;
+        return this;
+    }
 }

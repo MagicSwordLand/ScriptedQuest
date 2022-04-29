@@ -1,6 +1,7 @@
 package net.brian.scriptedquests.api.objectives;
 
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.brian.playerdatasync.events.PlayerDataFetchComplete;
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.data.SerializedQuestData;
@@ -11,22 +12,27 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.*;
+import java.util.function.Function;
 
 public abstract class QuestObjective implements Listener {
 
     protected final String objectiveID;
     protected final Quest quest;
     protected final Condition[] conditions;
+    protected Function<Player,String> instruction;
     protected final List<Player> onlinePlayers = new ArrayList<>();
+
 
     public QuestObjective(Quest quest,String objectiveID){
         this(quest,objectiveID,player -> true);
     }
+
 
     public QuestObjective(Quest quest,String objectiveID, Condition... condition){
         this.quest = quest;
@@ -64,10 +70,6 @@ public abstract class QuestObjective implements Listener {
     }
 
 
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event){
-        onlinePlayers.remove(event.getPlayer());
-    }
 
 
     public String getObjectiveID() {
@@ -78,7 +80,12 @@ public abstract class QuestObjective implements Listener {
         return quest;
     }
 
-    public abstract String getInstruction(Player player);
+    public String getInstruction(Player player){
+        if(instruction != null){
+            return PlaceholderAPI.setPlaceholders(player,instruction.apply(player));
+        }
+        return "instruction not set";
+    }
 
 
     protected boolean valid(Player player){
@@ -93,5 +100,33 @@ public abstract class QuestObjective implements Listener {
     public boolean playerIsDoing(Player player){
         return onlinePlayers.contains(player);
     }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event){
+        onlinePlayers.remove(event.getPlayer());
+    }
+
+
+
+    public QuestObjective setInstruction(Function<Player,String> instruction){
+        this.instruction = instruction;
+        return this;
+    }
+
+    public QuestObjective setInstruction(String instruction){
+        this.instruction = player -> instruction;
+        return this;
+    }
+
+
+    public QuestObjective setInstruction(String instruction,Function<Player,Integer> funct){
+        this.instruction = player -> {
+            String copyString = instruction;
+            copyString = copyString.replace("%d",funct.apply(player).toString());
+            return copyString;
+        };
+        return this;
+    }
+
 
 }

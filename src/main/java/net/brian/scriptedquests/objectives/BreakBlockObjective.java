@@ -49,10 +49,14 @@ public class BreakBlockObjective extends PersistentObjective<BreakBlockObjective
         }).orElse("資料載入中");
     }
 
-    static class BreakProfile extends ObjectiveData {
+    public static class BreakProfile extends ObjectiveData {
         int amount;
         BreakProfile(int amount){
             this.amount = amount;
+        }
+
+        public int getAmount() {
+            return amount;
         }
     }
 
