@@ -13,4 +13,7 @@ public class QuestLogger {
         logger.log(Level.INFO,string);
     }
 
+    public static void debug(String msg){
+        logger.log(Level.INFO,msg);
+    }
 }

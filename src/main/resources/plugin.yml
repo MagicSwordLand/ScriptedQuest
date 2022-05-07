@@ -4,6 +4,9 @@ main: net.brian.scriptedquests.ScriptedQuests
 api-version: 1.18
 commands:
   sQuest:
+    aliases:
+      - sq
 depend:
   - MythicMobs
+  - GPS
   - PlayerDataSync

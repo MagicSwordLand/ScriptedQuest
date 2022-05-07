@@ -3,9 +3,9 @@ package net.brian.scriptedquests;
 import net.brian.playerdatasync.PlayerDataSync;
 import net.brian.scriptedquests.api.quests.QuestManager;
 import net.brian.scriptedquests.commands.CommandManager;
+import net.brian.scriptedquests.compability.CompatibilityAddons;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.conversation.ConversationManager;
-import net.brian.scriptedquests.demo.conversation.DemoConversation;
 import net.brian.scriptedquests.quests.QuestManagerImpl;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,7 +24,7 @@ public final class ScriptedQuests extends JavaPlugin {
         questManager = new QuestManagerImpl(this);
         new CommandManager(this);
         conversationManager = new ConversationManager(questManager);
-        new DemoConversation(questManager);
+        CompatibilityAddons.load();
     }
 
     @Override

@@ -11,12 +11,13 @@ public class BreakDiasyQuest extends Quest {
 
     public BreakDiasyQuest() {
         super(ID);
-        BreakBlockObjective breakBlockObjective = new BreakBlockObjective(this,"break",Material.OXEYE_DAISY,5);
-        breakBlockObjective.setInstruction("破壞 %d/5 個daisy",player -> {
-            return breakBlockObjective.getData(player.getUniqueId())
-                    .map(BreakBlockObjective.BreakProfile::getAmount).orElse(0);
-        });
+        pushObjective(
+                new BreakBlockObjective(this,"break",Material.OXEYE_DAISY,5)
+                        .setInstruction(data -> "破壞 "+data.getAmount()+"/5 個daisy")
+                        .setLocation("world",100,200,100)
+                        .setEndProcess(player -> player.sendMessage("恭喜你完成了階段一"))
 
+        );
     }
 
     @Override
@@ -28,4 +29,5 @@ public class BreakDiasyQuest extends Quest {
     public void onStart(Player player) {
         player.sendMessage("你開始了daisy任務");
     }
+
 }

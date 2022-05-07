@@ -1,6 +1,7 @@
 package net.brian.scriptedquests.commands;
 
 import net.brian.scriptedquests.ScriptedQuests;
+import net.brian.scriptedquests.commands.subcommands.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,6 +20,9 @@ public class CommandManager implements CommandExecutor {
         plugin.getCommand("sQuest").setExecutor(this);
         subCommands.add(new ListObjectives(plugin));
         subCommands.add(new ResetCommand(plugin));
+        subCommands.add(new TrackCommand(plugin));
+        subCommands.add(new SkipCommand(plugin));
+        subCommands.add(new StartCommand(plugin));
     }
 
 

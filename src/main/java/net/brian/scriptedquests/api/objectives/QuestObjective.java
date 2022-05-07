@@ -2,6 +2,7 @@ package net.brian.scriptedquests.api.objectives;
 
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.brian.playerdatasync.PlayerDataSync;
 import net.brian.playerdatasync.events.PlayerDataFetchComplete;
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.data.SerializedQuestData;
@@ -9,6 +10,7 @@ import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.api.conditions.Condition;
 import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import javax.swing.plaf.metal.MetalBorders;
 import java.util.*;
 import java.util.function.Function;
 
@@ -25,9 +28,10 @@ public abstract class QuestObjective implements Listener {
     protected final String objectiveID;
     protected final Quest quest;
     protected final Condition[] conditions;
-    protected Function<Player,String> instruction;
     protected final List<Player> onlinePlayers = new ArrayList<>();
-
+    protected Location location;
+    protected Process endProcess;
+    protected String instruction;
 
     public QuestObjective(Quest quest,String objectiveID){
         this(quest,objectiveID,player -> true);
@@ -39,6 +43,7 @@ public abstract class QuestObjective implements Listener {
         this.conditions = condition;
         this.objectiveID = objectiveID;
         Bukkit.getServer().getPluginManager().registerEvents(this, ScriptedQuests.getInstance());
+        cachePlayers();
     }
 
 
@@ -47,8 +52,13 @@ public abstract class QuestObjective implements Listener {
     public void start(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
             data.setQuestData(quest.getQuestID(),new SerializedQuestData(objectiveID));
-            onlinePlayers.add(player);
         });
+        onlinePlayers.add(player);
+        String instruction = getInstruction(player);
+
+        if(instruction != null && !instruction.equals("")){
+            player.sendTitle("","[任務目標] "+getInstruction(player));
+        }
     }
 
     public void cancel(Player player){
@@ -61,7 +71,15 @@ public abstract class QuestObjective implements Listener {
         PlayerQuestDataImpl.get(uuid).ifPresent(data->{
             quest.finish(player,objectiveID);
             onlinePlayers.remove(player);
+
+            if(data.getTrackingObjective().filter(objective -> objective.equals(this)).isPresent()){
+                data.endTracking();
+            }
+
         });
+        if(endProcess != null){
+            endProcess.run(player);
+        }
     }
 
 
@@ -70,22 +88,29 @@ public abstract class QuestObjective implements Listener {
     }
 
 
+    public void cachePlayers(){
+        PlayerDataSync playerDataSync = PlayerDataSync.getInstance();
+        if(playerDataSync != null){
+            playerDataSync.getPlayerDatas().getTable(PlayerQuestDataImpl.class)
+                    .cacheData.values().forEach(data->{
+                        if(data.getObjectiveData(quest.getQuestID(),objectiveID) != null){
+                            onlinePlayers.add(Bukkit.getPlayer(data.getUuid()));
+                        }
+                    });
+        }
+    }
 
 
     public String getObjectiveID() {
         return objectiveID;
     }
 
+
     public Quest getParent() {
         return quest;
     }
 
-    public String getInstruction(Player player){
-        if(instruction != null){
-            return PlaceholderAPI.setPlaceholders(player,instruction.apply(player));
-        }
-        return "instruction not set";
-    }
+
 
 
     protected boolean valid(Player player){
@@ -107,26 +132,43 @@ public abstract class QuestObjective implements Listener {
     }
 
 
+    public String getInstruction(Player player){
+        if(instruction != null){
+            return PlaceholderAPI.setPlaceholders(player,instruction);
+        }
+        return "instruction not set";
+    }
 
-    public QuestObjective setInstruction(Function<Player,String> instruction){
+    public QuestObjective setInstruction(String instruction){
         this.instruction = instruction;
         return this;
     }
 
-    public QuestObjective setInstruction(String instruction){
-        this.instruction = player -> instruction;
+
+    public QuestObjective setLocation(Location location){
+        this.location = location;
         return this;
     }
 
+    public QuestObjective setLocation(String world,double x,double y,double z){
+        return setLocation(new Location(Bukkit.getWorld(world),x,y,z));
+    }
 
-    public QuestObjective setInstruction(String instruction,Function<Player,Integer> funct){
-        this.instruction = player -> {
-            String copyString = instruction;
-            copyString = copyString.replace("%d",funct.apply(player).toString());
-            return copyString;
-        };
+    public Location getLocation() {
+        return location;
+    }
+
+    public interface Process{
+        void run(Player player);
+    }
+
+    public QuestObjective setEndProcess(Process endProcess) {
+        this.endProcess = endProcess;
         return this;
     }
 
+    public Process getEndProcess() {
+        return endProcess;
+    }
 
 }

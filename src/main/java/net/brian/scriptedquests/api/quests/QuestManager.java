@@ -8,4 +8,7 @@ public interface QuestManager {
 
     void register(Quest quest);
 
+    void unregister(String questID);
+
+    void unregisterAll();
 }

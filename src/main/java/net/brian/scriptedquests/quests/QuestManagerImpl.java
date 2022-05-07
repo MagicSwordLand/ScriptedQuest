@@ -17,10 +17,7 @@ public class QuestManagerImpl implements QuestManager {
 
 
     public QuestManagerImpl(ScriptedQuests plugin){
-        register(new TestQuest());
-        register(new KillZombieQuest());
-        register(new BreakDiasyQuest());
-        register(new MilkQuest());
+        
     }
 
 
@@ -38,5 +35,25 @@ public class QuestManagerImpl implements QuestManager {
         }
         quests.put(quest.getQuestID(),quest);
     }
+
+    public Collection<Quest> getQuests(){
+        return quests.values();
+    }
+
+    @Override
+    public void unregister(String questID) {
+        Quest quest = quests.get(questID);
+        if(quest != null){
+            quest.unregister();
+            quests.remove(questID);
+        }
+    }
+
+    @Override
+    public void unregisterAll() {
+        quests.values().forEach(Quest::unregister);
+        quests.clear();
+    }
+
 
 }

@@ -3,13 +3,18 @@ package net.brian.scriptedquests.conversation;
 import io.lumine.mythic.utils.metadata.Pair;
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.api.quests.QuestManager;
+import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
+import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,11 +27,6 @@ public class ConversationManager implements Listener {
 
     public ConversationManager(QuestManager questManager){
         Bukkit.getServer().getPluginManager().registerEvents(this,ScriptedQuests.getInstance());
-        pushNPCQuestion(5,new NPCQuestion("甚麼事?")
-                .addPlayerOption(questManager.getQuest("test")
-                        .map(quest -> quest.getStartOption("最近治安如何",false))
-                        .orElse(new PlayerOption("天氣真好").setNpcResponse("對阿")))
-                .addPlayerOption(new PlayerOption("沒什麼").setNpcResponse("沒事就滾開")));
     }
 
     public void pushNPCQuestion(int npcID,NPCQuestion npcQuestion){
@@ -44,14 +44,17 @@ public class ConversationManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST,ignoreCancelled = true)
     public void onRightClick(NPCRightClickEvent event){
-        NPCRespondProfile npcRespondProfile = questions.get(event.getNPC().getId());
-        if(npcRespondProfile != null){
-            Player player = event.getClicker();
-            Conversation conversation = npcRespondProfile.getConversation(player);
-            if(conversation != null){
-                conversation.send(event.getNPC().getId(),player);
+        if(!pendingOptions.containsKey(event.getClicker())){
+            NPCRespondProfile npcRespondProfile = questions.get(event.getNPC().getId());
+            if(npcRespondProfile != null){
+                Player player = event.getClicker();
+                Conversation conversation = npcRespondProfile.getConversation(player);
+                if(conversation != null){
+                    conversation.send(event.getNPC().getId(),player);
+                }
             }
         }
+        else event.getClicker().sendMessage("§e請先結束上當前對話，蹲下可取消當前對話");
     }
 
 
@@ -66,13 +69,41 @@ public class ConversationManager implements Listener {
             if(cmd.length>=2 && playerOptions != null){
                 try {
                     int option = Integer.parseInt(cmd[1]);
-                    pendingOptions.remove(player);
-                    playerOptions.getValue().get(option).process(player,playerOptions.getKey());
+                    if(option < playerOptions.getValue().size()){
+                        pendingOptions.remove(player);
+                        playerOptions.getValue().get(option).process(player,playerOptions.getKey());
+                    }
                 }catch (NumberFormatException ignore){
                 }
             }
-            else player.sendMessage("你無法回覆此對話");
+            else player.sendMessage("§c此對話已結束");
         }
+    }
+
+    @EventHandler
+    public void onShift(PlayerToggleSneakEvent event){
+        if(pendingOptions.containsKey(event.getPlayer())){
+            pendingOptions.remove(event.getPlayer());
+            event.getPlayer().sendMessage("§c已結束對話");
+        }
+    }
+
+    @EventHandler
+    public void onWalkAway(PlayerMoveEvent event){
+        Pair<Integer,List<PlayerOption>> pair = pendingOptions.get(event.getPlayer());
+        if(pair != null){
+            Player player = event.getPlayer();
+            NPC npc = CitizensAPI.getNPCRegistry().getById(pair.getKey());
+            if(npc != null && player.getLocation().distance(npc.getEntity().getLocation()) > 5){
+                pendingOptions.remove(player);
+                player.sendMessage("§c距離對話者太遠 當前對話已取消");
+            }
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event){
+        pendingOptions.remove(event.getPlayer());
     }
 
     public void cachePendingResponses(Player player,Pair<Integer,List<PlayerOption>> options){

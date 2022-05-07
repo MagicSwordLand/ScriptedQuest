@@ -1,14 +1,14 @@
-package net.brian.scriptedquests.objectives;
+package net.brian.scriptedquests.compability.mythicmobs;
 
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import net.brian.scriptedquests.api.conditions.Condition;
-import net.brian.scriptedquests.api.objectives.ObjectiveData;
+import net.brian.scriptedquests.api.objectives.data.IntegerData;
 import net.brian.scriptedquests.api.objectives.PersistentObjective;
 import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 
-public class KillMobsObjectives extends PersistentObjective<KillMobsObjectives.KillCount> {
+public class KillMobsObjective extends PersistentObjective<IntegerData> {
 
 
     private final String mobType;
@@ -16,11 +16,10 @@ public class KillMobsObjectives extends PersistentObjective<KillMobsObjectives.K
 
     private String mobName = "";
 
-    public KillMobsObjectives(String objectiveID, Quest quest, String mobType, int amount, Condition... conditions) {
+    public KillMobsObjective(Quest quest,String objectiveID , String mobType, int amount, Condition... conditions) {
         super(quest,objectiveID,conditions);
         this.mobType = mobType;
         this.amount = amount;
-
     }
 
     @EventHandler
@@ -28,8 +27,8 @@ public class KillMobsObjectives extends PersistentObjective<KillMobsObjectives.K
         if(event.getMobType().getInternalName().equalsIgnoreCase(mobType)){
             getData(event.getKiller().getUniqueId()).ifPresent(data->{
                 if(valid((Player) event.getKiller())){
-                    data.amount ++;
-                    if(data.amount >= amount){
+                    data.add(1);
+                    if(data.getAmount() >= amount){
                         finish((Player) event.getKiller());
                     }
                 }
@@ -39,26 +38,15 @@ public class KillMobsObjectives extends PersistentObjective<KillMobsObjectives.K
 
 
     @Override
-    public Class<KillCount> getDataClass() {
-        return KillCount.class;
+    public Class<IntegerData> getDataClass() {
+        return IntegerData.class;
     }
 
     @Override
-    public KillCount newObjectiveData() {
-        return new KillCount(0);
+    public IntegerData newObjectiveData() {
+        return new IntegerData();
     }
 
-    @Override
-    public String getInstruction(Player player) {
-        return mobName +getData(player.getUniqueId()).map(data->data.amount).orElse(-1) +"/"+amount;
-    }
-
-    static class KillCount extends ObjectiveData {
-        int amount;
-        public KillCount(int amount){
-            this.amount = amount;
-        }
-    };
 
     public void setMobName(String name){
         this.mobName = name;

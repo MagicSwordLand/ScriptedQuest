@@ -1,11 +1,13 @@
 package net.brian.scriptedquests.objectives;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.api.quests.Quest;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import net.citizensnpcs.api.npc.NPC;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,21 +16,21 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListenObjective extends QuestObjective {
+public class ListenNPCObjective extends QuestObjective {
 
     String[] text;
     int npcID;
     int delayTick;
     List<Player> listeningPlayer = new ArrayList<>();
 
-    public ListenObjective(Quest quest, String objectiveID,int npcID,int delayTick,String... text) {
+    public ListenNPCObjective(Quest quest, String objectiveID, int npcID, int delayTick, String... text) {
         super(quest, objectiveID);
         this.npcID = npcID;
         this.delayTick = delayTick;
         this.text = text;
     }
 
-    public ListenObjective(Quest quest, String objectiveID,int npcID,String... text) {
+    public ListenNPCObjective(Quest quest, String objectiveID, int npcID, String... text) {
         this(quest,objectiveID,npcID,40,text);
     }
 
@@ -54,7 +56,9 @@ public class ListenObjective extends QuestObjective {
                 public void run() {
                     if(text.length > index[0]){
                         if(npc != null && player.isOnline()){
-                            player.sendMessage(npc.getName()+": "+text[index[0]]);
+                            player.playSound(player.getLocation(),Sound.ENTITY_VILLAGER_AMBIENT,1,1);
+
+                            player.sendMessage(PlaceholderAPI.setPlaceholders(player,text[index[0]]));
                             index[0]++;
                         }
                         else{
@@ -70,17 +74,5 @@ public class ListenObjective extends QuestObjective {
                 }
             }.runTaskTimer(ScriptedQuests.getInstance(),0,delayTick);
         }
-    }
-
-
-
-
-    @Override
-    public String getInstruction(Player player) {
-        NPC npc = CitizensAPI.getNPCRegistry().getById(npcID);
-        if(npc != null){
-            return "跟"+npc.getName() +" 說話";
-        }
-        return "找不到NPC, Quest:"+quest.getQuestID()+" obj:"+objectiveID;
     }
 }

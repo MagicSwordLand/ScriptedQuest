@@ -1,4 +1,4 @@
-package net.brian.scriptedquests.api.objectives;
+package net.brian.scriptedquests.api.objectives.data;
 
 import com.google.gson.Gson;
 

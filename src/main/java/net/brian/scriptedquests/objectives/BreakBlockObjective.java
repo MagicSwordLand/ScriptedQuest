@@ -1,14 +1,14 @@
 package net.brian.scriptedquests.objectives;
 
-import net.brian.scriptedquests.api.objectives.ObjectiveData;
+import net.brian.scriptedquests.api.objectives.data.IntegerData;
+import net.brian.scriptedquests.api.objectives.data.ObjectiveData;
 import net.brian.scriptedquests.api.objectives.PersistentObjective;
 import net.brian.scriptedquests.api.quests.Quest;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 
-public class BreakBlockObjective extends PersistentObjective<BreakBlockObjective.BreakProfile> {
+public class BreakBlockObjective extends PersistentObjective<IntegerData> {
 
     final int amount;
     Material type;
@@ -24,8 +24,8 @@ public class BreakBlockObjective extends PersistentObjective<BreakBlockObjective
     public void onBreak(BlockBreakEvent event){
         if(event.getBlock().getType().equals(type)){
             getData(event.getPlayer().getUniqueId()).ifPresent(data->{
-                data.amount++;
-                if(data.amount >= amount){
+                data.add(1);
+                if(data.getAmount() >= amount){
                     finish(event.getPlayer());
                 }
             });
@@ -33,32 +33,15 @@ public class BreakBlockObjective extends PersistentObjective<BreakBlockObjective
     }
 
     @Override
-    public Class<BreakProfile> getDataClass() {
-        return BreakProfile.class;
+    public Class<IntegerData> getDataClass() {
+        return IntegerData.class;
     }
 
     @Override
-    public BreakProfile newObjectiveData() {
-        return new BreakProfile(0);
+    public IntegerData newObjectiveData() {
+        return new IntegerData();
     }
 
-    @Override
-    public String getInstruction(Player player) {
-        return getData(player.getUniqueId()).map(data->{
-            return "請破壞"+data.amount+"/"+amount+"個"+type.name();
-        }).orElse("資料載入中");
-    }
-
-    public static class BreakProfile extends ObjectiveData {
-        int amount;
-        BreakProfile(int amount){
-            this.amount = amount;
-        }
-
-        public int getAmount() {
-            return amount;
-        }
-    }
 
 
 }

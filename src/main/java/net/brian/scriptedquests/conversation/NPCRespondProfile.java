@@ -20,9 +20,11 @@ public class NPCRespondProfile {
 
     public Conversation getConversation(Player player){
         for (NPCQuestion npcQuestion : npcQuestions) {
-            List<PlayerOption> options = npcQuestion.getPlayerOptions(player);
-            if(!options.isEmpty()){
-                return new Conversation(npcQuestion,options);
+            if(npcQuestion.valid(player)){
+                List<PlayerOption> options = npcQuestion.getPlayerOptions(player);
+                if(!options.isEmpty()){
+                    return new Conversation(npcQuestion,options);
+                }
             }
         }
         return null;

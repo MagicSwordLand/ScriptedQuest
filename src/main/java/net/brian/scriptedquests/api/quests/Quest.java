@@ -5,6 +5,7 @@ import net.brian.scriptedquests.api.conditions.Condition;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.conversation.PlayerOption;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
@@ -16,13 +17,16 @@ public abstract class Quest {
 
     private final LinkedHashMap<String,QuestObjective> objectives = new LinkedHashMap<>();
 
-    public Quest(String questID){
+    public Quest(String questID,QuestObjective... objectives){
         this.questID = questID;
+        pushObjective(objectives);
     }
 
 
-    public Quest pushObjective(QuestObjective objective){
-        objectives.put(objective.getObjectiveID(),objective);
+    public Quest pushObjective(QuestObjective... objectives){
+        for (QuestObjective objective : objectives) {
+            this.objectives.put(objective.getObjectiveID(),objective);
+        }
         return this;
     }
 
@@ -33,6 +37,7 @@ public abstract class Quest {
                 if(it.hasNext()){
                     onStart(player);
                     it.next().getValue().start(player);
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,2);
                 }
                 else {
                     onEnd(player);
@@ -55,6 +60,7 @@ public abstract class Quest {
                     }
                     else{
                         onEnd(player);
+                        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE,1,1);
                         data.addFinishQuest(questID);
                         data.removeQuest(questID);
                     }

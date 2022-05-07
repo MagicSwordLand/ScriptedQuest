@@ -10,6 +10,9 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.event.HoverEventSource;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -19,6 +22,7 @@ public class Conversation{
         NPCQuestion npcQuestion;
         List<PlayerOption> playerOptions;
 
+
         public Conversation(NPCQuestion npcQuestion,List<PlayerOption> playerOptions){
             this.npcQuestion = npcQuestion;
             this.playerOptions = playerOptions;
@@ -26,19 +30,25 @@ public class Conversation{
         
         public void send(int senderID, Player player){
             ScriptedQuests.getInstance().getConversationManager().cachePendingResponses(player, Pair.of(senderID,playerOptions));
-            NPC npc = CitizensAPI.getNPCRegistry().getById(senderID);
-            npcQuestion.messages.forEach(message->player.sendMessage(npc.getName()+": "+ PlaceholderAPI.setPlaceholders(player,message)));
+            List<String> messages = npcQuestion.messages;
 
-            player.sendMessage("================================");
+            for (String message : messages) {
+                player.sendMessage(PlaceholderAPI.setPlaceholders(player,message));
+            }
+
+            player.sendMessage("§7================================");
             player.sendMessage("");
             int a = 0;
             for (PlayerOption playerOption : playerOptions) {
-                TextComponent component = Component.text(playerOption.message);
-                component = component.clickEvent(ClickEvent.runCommand("/squestpickoption "+a));
+                TextComponent component = Component.text("§c["+(a+1)+"]§f  "+ PlaceholderAPI.setPlaceholders(player,playerOption.message))
+                        .clickEvent(ClickEvent.runCommand("/squestpickoption "+a))
+                        .hoverEvent(HoverEvent.showText(Component.text("點擊回答此選項")));
                 player.sendMessage(component);
+                player.sendMessage("");
                 a++;
             }
-            player.sendMessage("");
-            player.sendMessage("================================");
+
+            player.sendMessage("§7================================");
         }
+
     }

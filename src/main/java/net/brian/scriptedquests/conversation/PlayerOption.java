@@ -21,6 +21,13 @@ public class PlayerOption {
         this.conditions.addAll(Arrays.asList(conditions));
     }
 
+    public PlayerOption(String message,NPCMessage npcMessage,Condition... conditions){
+        this.message = message;
+        this.conditions.addAll(Arrays.asList(conditions));
+        this.npcMessage = npcMessage;
+    }
+
+
 
     public boolean shouldShow(Player player){
         return Condition.test(player,conditions);
