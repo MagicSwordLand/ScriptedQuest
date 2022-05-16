@@ -5,7 +5,8 @@ import net.brian.playerdatasync.PlayerDataSync;
 import net.brian.playerdatasync.data.PlayerData;
 import net.brian.playerdatasync.data.gson.PostProcessable;
 import net.brian.scriptedquests.ScriptedQuests;
-import net.brian.scriptedquests.api.data.PlayerQuestData;
+import net.brian.scriptedquests.api.objectives.data.ObjectiveData;
+import net.brian.scriptedquests.api.player.PlayerQuestData;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.api.quests.QuestManager;
 import net.brian.scriptedquests.compability.CompatibilityAddons;
@@ -19,6 +20,7 @@ import java.util.*;
 public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData, PostProcessable {
 
     private final HashMap<String,SerializedQuestData> serializedQuestDatas = new HashMap<>();
+
     private final Set<String> finishedQuestIDs = new HashSet<>();
 
     private String trackingQuestID = "";
@@ -28,10 +30,14 @@ public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData, 
         super(uuid);
     }
 
+
+    @Override
     public String getObjectiveData(String quest, String objective){
         SerializedQuestData data = serializedQuestDatas.get(quest);
         if(data != null){
-            return data.getObjectiveData();
+            if(objective.equals(data.getObjectiveID())){
+                return data.getObjectiveData();
+            }
         }
         return null;
     }
@@ -39,18 +45,38 @@ public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData, 
 
 
     @Override
-    public void removeQuest(String questID) {
+    public void removeQuestData(String questID) {
         serializedQuestDatas.remove(questID);
     }
 
     @Override
-    public void setQuestData(String questID, SerializedQuestData data) {
-        serializedQuestDatas.put(questID,data);
+    public SerializedQuestData getQuestData(String quest) {
+        return serializedQuestDatas.get(quest);
+    }
+
+    @Override
+    public void setQuestData(String questID, String objID,String objData) {
+        SerializedQuestData questData = serializedQuestDatas.get(questID);
+        if(questData != null){
+            questData.setObjectiveID(objID);
+            questData.setObjectiveData(objData);
+        }
+        if(questData == null){
+            serializedQuestDatas.put(questID,new SerializedQuestData(objID,objData));
+        }
     }
 
     @Override
     public boolean isDoing(String questID) {
         return serializedQuestDatas.containsKey(questID);
+    }
+
+    @Override
+    public boolean isDoing(String questID, String objectiveID) {
+        if(serializedQuestDatas.containsKey(questID)){
+            return serializedQuestDatas.get(questID).getObjectiveID().equals(objectiveID);
+        }
+        return false;
     }
 
     @Override
@@ -94,6 +120,9 @@ public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData, 
                                 com.live.bemmamin.gps.playerdata.PlayerData.getPlayerData(uuid)
                                         .startNavigation(point,true,"開始追蹤任務進度");
                             }
+                            else{
+                                Bukkit.getPlayer(uuid).sendMessage("此階段無法指路");
+                            }
                         }
                     });
         }
@@ -118,22 +147,22 @@ public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData, 
         return PlayerDataSync.getInstance().getData(uuid,PlayerQuestDataImpl.class);
     }
 
-
     @Override
     public void gsonPostDeserialize() {
         QuestManager questManager = ScriptedQuests.getInstance().getQuestManager();
         Player player = Bukkit.getPlayer(uuid);
-        serializedQuestDatas.forEach((questID, serializedData)->{
-            questManager.getQuest(questID).flatMap(quest -> quest.getObjective(serializedData.getObjectiveID()))
-                    .ifPresent(objective -> objective.cachePlayer(player,serializedData.getObjectiveData()));
+        serializedQuestDatas.forEach((questID, serializedData)-> {
+            questManager.getQuest(questID).ifPresent(quest -> {
+                quest.cachePlayer(player,serializedData);
+            });
         });
+
         startTracking();
     }
 
-    @Override
-    public void gsonPostSerialize() {
-
+    public void clearAll(){
+        serializedQuestDatas.clear();
+        finishedQuestIDs.clear();
     }
-
 
 }

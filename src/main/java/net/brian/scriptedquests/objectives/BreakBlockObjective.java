@@ -24,9 +24,11 @@ public class BreakBlockObjective extends PersistentObjective<IntegerData> {
     public void onBreak(BlockBreakEvent event){
         if(event.getBlock().getType().equals(type)){
             getData(event.getPlayer().getUniqueId()).ifPresent(data->{
-                data.add(1);
-                if(data.getAmount() >= amount){
-                    finish(event.getPlayer());
+                if(valid(event.getPlayer())){
+                    data.add(1);
+                    if(data.getAmount() >= amount){
+                        finish(event.getPlayer());
+                    }
                 }
             });
         }

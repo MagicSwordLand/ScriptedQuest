@@ -1,5 +1,7 @@
 package net.brian.scriptedquests.api.quests;
 
+import org.bukkit.entity.Player;
+
 import java.util.Optional;
 
 public interface QuestManager {
@@ -11,4 +13,5 @@ public interface QuestManager {
     void unregister(String questID);
 
     void unregisterAll();
+
 }

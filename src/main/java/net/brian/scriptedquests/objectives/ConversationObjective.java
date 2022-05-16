@@ -13,19 +13,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 
-import java.awt.geom.RectangularShape;
 
-public class ConversationObjective extends QuestObjective {
+public class ConversationObjective extends NPCObjective {
 
 
-    private NPCQuestion startQuestion;
-    private int npcID;
-    private boolean startInstantly;
+    private NPCQuestion startQuestion = null;
+    private boolean startInstantly = true;
+
+    public ConversationObjective(Quest quest,String objID,int npcID){
+        super(quest,objID,npcID);
+
+    }
 
     public ConversationObjective(Quest quest,String objID,int npcID,boolean startInstantly,NPCQuestion startQuestion,PlayerOption... endOptions){
-        super(quest,objID);
+        super(quest,objID,npcID);
         this.startQuestion =startQuestion;
-        this.npcID = npcID;
         for (PlayerOption endOption : endOptions) {
             PlayerOption.Result oldResult = endOption.getResult();
             endOption.setResult((player, id) -> {
@@ -37,8 +39,9 @@ public class ConversationObjective extends QuestObjective {
         }
         NPC npc = CitizensAPI.getNPCRegistry().getById(npcID);
         if(npc != null){
-           setLocation(npc.getEntity().getLocation());
+            setLocation(npc.getEntity().getLocation());
         }
+        this.startInstantly = startInstantly;
     }
 
     public ConversationObjective(Quest quest,String objID,int npcID,NPCQuestion startQuestion,PlayerOption... endOptions){
@@ -48,7 +51,9 @@ public class ConversationObjective extends QuestObjective {
     public void start(Player player){
        super.start(player);
        if(startInstantly){
-           startQuestion.send(npcID,player);
+           if(startQuestion != null){
+               startQuestion.send(npcID,player);
+           }
        }
     }
 
@@ -58,10 +63,21 @@ public class ConversationObjective extends QuestObjective {
         if(event.getNPC().getId() == npcID && playerIsDoing(event.getClicker())){
             if(!ScriptedQuests.getInstance().getConversationManager().inConversation(event.getClicker())){
                 event.setCancelled(true);
-                startQuestion.send(npcID,event.getClicker());
+                if(startQuestion != null){
+                    startQuestion.send(npcID,event.getClicker());
+                }
+                else finish(event.getClicker());
             }
         }
     }
 
+    public ConversationObjective setStartQuestion(NPCQuestion npcQuestion){
+        startQuestion = npcQuestion;
+        return  this;
+    }
 
+    public ConversationObjective setStartInstantly(boolean startInstantly) {
+        this.startInstantly = startInstantly;
+        return this;
+    }
 }

@@ -1,8 +1,9 @@
 package net.brian.scriptedquests.objectives;
 
+import net.brian.scriptedquests.api.conditions.Condition;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.api.quests.Quest;
-import net.brian.scriptedquests.logger.QuestLogger;
+import net.brian.scriptedquests.utils.logger.QuestLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -43,7 +44,9 @@ public class MoveToObjective extends QuestObjective {
             Location loc = event.getPlayer().getLocation();
             if(loc.getWorld().equals(targetLocation.getWorld())){
                 if(loc.distance(targetLocation) < radius){
-                    finish(event.getPlayer());
+                    if(Condition.test(event.getPlayer(),conditions)){
+                        finish(event.getPlayer());
+                    }
                 }
             }
         }

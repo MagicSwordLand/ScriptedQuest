@@ -10,7 +10,7 @@ import java.util.List;
 public class PlayerOption {
 
 
-    private Result result;
+    protected Result result;
     String message;
     List<Condition> conditions = new ArrayList<>();
     NPCMessage npcMessage;

@@ -16,10 +16,10 @@ public class QuestManagerImpl implements QuestManager {
     private final Map<String , Quest> quests = new HashMap<>();
 
 
+    ScriptedQuests plugin;
     public QuestManagerImpl(ScriptedQuests plugin){
-        
+        this.plugin = plugin;
     }
-
 
 
     @Override

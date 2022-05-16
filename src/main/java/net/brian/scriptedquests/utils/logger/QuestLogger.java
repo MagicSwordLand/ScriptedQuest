@@ -1,4 +1,4 @@
-package net.brian.scriptedquests.logger;
+package net.brian.scriptedquests.utils.logger;
 
 import org.bukkit.Bukkit;
 

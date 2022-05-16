@@ -20,8 +20,10 @@ public class StartCommand extends SubCommand {
             if(args.length >= 3){
                 Player player = Bukkit.getPlayer(args[1]);
                 if(player != null){
-                    plugin.getQuestManager().getQuest(args[2]).ifPresent(quest -> {
+                    plugin.getQuestManager().getQuest(args[2]).ifPresentOrElse(quest -> {
                         quest.startQuest(player);
+                    },()->{
+                        sender.sendMessage("找不到該id的任務");
                     });
                 }
             }

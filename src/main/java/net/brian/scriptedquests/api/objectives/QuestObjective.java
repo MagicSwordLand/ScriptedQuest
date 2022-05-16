@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import javax.swing.plaf.metal.MetalBorders;
 import java.util.*;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 public abstract class QuestObjective implements Listener {
 
@@ -43,7 +44,6 @@ public abstract class QuestObjective implements Listener {
         this.conditions = condition;
         this.objectiveID = objectiveID;
         Bukkit.getServer().getPluginManager().registerEvents(this, ScriptedQuests.getInstance());
-        cachePlayers();
     }
 
 
@@ -51,7 +51,7 @@ public abstract class QuestObjective implements Listener {
 
     public void start(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
-            data.setQuestData(quest.getQuestID(),new SerializedQuestData(objectiveID));
+            data.setQuestData(quest.getQuestID(),objectiveID,null);
         });
         onlinePlayers.add(player);
         String instruction = getInstruction(player);
@@ -62,7 +62,20 @@ public abstract class QuestObjective implements Listener {
     }
 
     public void cancel(Player player){
-        onlinePlayers.remove(player);
+        if(onlinePlayers.contains(player)){
+            quest.onCancel(player);
+            onlinePlayers.remove(player);
+        }
+    }
+
+    public void cancelAll(){
+        onlinePlayers.forEach(player -> {
+            quest.onCancel(player);
+            PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
+                data.removeQuestData(quest.getQuestID());
+            });
+        });
+        onlinePlayers.clear();
     }
 
 
@@ -71,7 +84,6 @@ public abstract class QuestObjective implements Listener {
         PlayerQuestDataImpl.get(uuid).ifPresent(data->{
             quest.finish(player,objectiveID);
             onlinePlayers.remove(player);
-
             if(data.getTrackingObjective().filter(objective -> objective.equals(this)).isPresent()){
                 data.endTracking();
             }
@@ -88,17 +100,7 @@ public abstract class QuestObjective implements Listener {
     }
 
 
-    public void cachePlayers(){
-        PlayerDataSync playerDataSync = PlayerDataSync.getInstance();
-        if(playerDataSync != null){
-            playerDataSync.getPlayerDatas().getTable(PlayerQuestDataImpl.class)
-                    .cacheData.values().forEach(data->{
-                        if(data.getObjectiveData(quest.getQuestID(),objectiveID) != null){
-                            onlinePlayers.add(Bukkit.getPlayer(data.getUuid()));
-                        }
-                    });
-        }
-    }
+
 
 
     public String getObjectiveID() {
@@ -124,6 +126,10 @@ public abstract class QuestObjective implements Listener {
 
     public boolean playerIsDoing(Player player){
         return onlinePlayers.contains(player);
+    }
+
+    public Collection<Player> getOnlinePlayers(){
+        return onlinePlayers;
     }
 
     @EventHandler
@@ -169,6 +175,11 @@ public abstract class QuestObjective implements Listener {
 
     public Process getEndProcess() {
         return endProcess;
+    }
+
+    public void unregister(){
+        HandlerList.unregisterAll(this);
+        onlinePlayers.clear();
     }
 
 }

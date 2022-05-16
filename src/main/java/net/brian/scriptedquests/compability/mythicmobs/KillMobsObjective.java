@@ -25,14 +25,18 @@ public class KillMobsObjective extends PersistentObjective<IntegerData> {
     @EventHandler
     public void onKill(MythicMobDeathEvent event){
         if(event.getMobType().getInternalName().equalsIgnoreCase(mobType)){
-            getData(event.getKiller().getUniqueId()).ifPresent(data->{
-                if(valid((Player) event.getKiller())){
-                    data.add(1);
-                    if(data.getAmount() >= amount){
-                        finish((Player) event.getKiller());
+            if(event.getKiller() == null) return;
+            if(event.getKiller() instanceof Player player){
+                getData(player.getUniqueId()).ifPresent(data->{
+                    if(valid(player)){
+                        data.add(1);
+                        if(data.getAmount() >= amount){
+                            finish((Player) event.getKiller());
+                        }
                     }
-                }
-            });
+                });
+            }
+
         }
     }
 

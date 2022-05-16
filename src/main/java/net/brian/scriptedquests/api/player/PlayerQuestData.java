@@ -1,4 +1,4 @@
-package net.brian.scriptedquests.api.data;
+package net.brian.scriptedquests.api.player;
 
 import net.brian.playerdatasync.PlayerDataSync;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
@@ -12,16 +12,22 @@ import java.util.UUID;
 public interface PlayerQuestData {
 
 
-    void removeQuest(String questID);
+    void removeQuestData(String questID);
 
-    void setQuestData(String questID, SerializedQuestData data);
+    SerializedQuestData getQuestData(String quest);
+    String getObjectiveData(String quest, String objective);
+    void setQuestData(String questID, String objID, String objectiveData);
 
     boolean isDoing(String questID);
+    boolean isDoing(String questID,String objectiveID);
 
     void addFinishQuest(String questID);
     boolean hasFinished(String questID);
 
 
+    /**
+     * Tracking
+     */
     Optional<QuestObjective> getTrackingObjective();
     void setTrackingQuest(String questID);
     void startTracking();

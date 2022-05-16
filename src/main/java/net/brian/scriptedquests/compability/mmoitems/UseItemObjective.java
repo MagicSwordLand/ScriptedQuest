@@ -1,12 +1,10 @@
 package net.brian.scriptedquests.compability.mmoitems;
 
 import net.Indyuce.mmoitems.api.event.item.ConsumableConsumedEvent;
+import net.brian.scriptedquests.api.conditions.Condition;
 import net.brian.scriptedquests.api.objectives.data.IntegerData;
-import net.brian.scriptedquests.api.objectives.data.ObjectiveData;
 import net.brian.scriptedquests.api.objectives.PersistentObjective;
 import net.brian.scriptedquests.api.quests.Quest;
-import net.brian.scriptedquests.logger.QuestLogger;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 
 public class UseItemObjective extends PersistentObjective<IntegerData> {
@@ -27,16 +25,17 @@ public class UseItemObjective extends PersistentObjective<IntegerData> {
 
     @EventHandler
     public void onUse(ConsumableConsumedEvent event){
-        QuestLogger.debug("Fired Consumed Event");
         String type = event.getMMOItem().getType().getId();
         String id = event.getMMOItem().getId();
         if(this.type.equalsIgnoreCase(type) && this.id.equalsIgnoreCase(id) && playerIsDoing(event.getPlayer())){
-            getData(event.getPlayer().getUniqueId()).ifPresent(data->{
-                data.add();
-                if(data.getAmount() >= amount) {
-                    finish(event.getPlayer());
-                }
-            });
+            if(Condition.test(event.getPlayer(),conditions)){
+                getData(event.getPlayer().getUniqueId()).ifPresent(data->{
+                    data.add();
+                    if(data.getAmount() >= amount) {
+                        finish(event.getPlayer());
+                    }
+                });
+            }
         }
     }
 

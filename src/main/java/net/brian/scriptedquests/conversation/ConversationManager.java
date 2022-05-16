@@ -113,4 +113,10 @@ public class ConversationManager implements Listener {
     public boolean inConversation(Player player){
         return pendingOptions.containsKey(player);
     }
+
+    public void clear(){
+        questions.clear();
+        pendingOptions.clear();
+    }
+
 }

@@ -32,11 +32,12 @@ public class Conversation{
             ScriptedQuests.getInstance().getConversationManager().cachePendingResponses(player, Pair.of(senderID,playerOptions));
             List<String> messages = npcQuestion.messages;
 
+            player.sendMessage("","");
+
+            player.sendMessage("§7================================");
             for (String message : messages) {
                 player.sendMessage(PlaceholderAPI.setPlaceholders(player,message));
             }
-
-            player.sendMessage("§7================================");
             player.sendMessage("");
             int a = 0;
             for (PlayerOption playerOption : playerOptions) {

@@ -2,6 +2,7 @@ package net.brian.scriptedquests.objectives;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.brian.scriptedquests.ScriptedQuests;
+import net.brian.scriptedquests.api.conditions.Condition;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.api.quests.Quest;
 import net.citizensnpcs.api.CitizensAPI;
@@ -11,21 +12,21 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListenNPCObjective extends QuestObjective {
+public class ListenNPCObjective extends NPCObjective {
 
     String[] text;
-    int npcID;
     int delayTick;
     List<Player> listeningPlayer = new ArrayList<>();
+    private boolean disableWalk = true;
 
     public ListenNPCObjective(Quest quest, String objectiveID, int npcID, int delayTick, String... text) {
-        super(quest, objectiveID);
-        this.npcID = npcID;
+        super(quest, objectiveID,npcID);
         this.delayTick = delayTick;
         this.text = text;
     }
@@ -34,10 +35,15 @@ public class ListenNPCObjective extends QuestObjective {
         this(quest,objectiveID,npcID,40,text);
     }
 
+    public ListenNPCObjective disableWalk(boolean enable){
+        disableWalk = enable;
+        return this;
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onClick(NPCRightClickEvent event){
         Player player = event.getClicker();
-        if(event.getNPC().getId() == npcID && playerIsDoing(player)){
+        if(event.getNPC().getId() == npcID && playerIsDoing(player) && Condition.test(player,conditions)){
             if(playerIsDoing(player)){
                 event.setCancelled(true);
             }
@@ -75,4 +81,14 @@ public class ListenNPCObjective extends QuestObjective {
             }.runTaskTimer(ScriptedQuests.getInstance(),0,delayTick);
         }
     }
+
+    @EventHandler
+    public void onWalk(PlayerMoveEvent event){
+        if(disableWalk){
+            if(listeningPlayer.contains(event.getPlayer())){
+                event.setCancelled(true);
+            }
+        }
+    }
+
 }

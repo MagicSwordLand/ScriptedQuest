@@ -1,32 +1,44 @@
 package net.brian.scriptedquests.api.quests;
 
 
+import net.brian.playerdatasync.PlayerDataSync;
 import net.brian.scriptedquests.api.conditions.Condition;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.conversation.PlayerOption;
+import net.brian.scriptedquests.data.SerializedQuestData;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
 
 import java.util.*;
 
 public abstract class Quest {
 
     protected final String questID;
+    protected boolean cancelAble = true;
+    protected String displayName;
 
-    private final LinkedHashMap<String,QuestObjective> objectives = new LinkedHashMap<>();
+    protected final LinkedHashMap<String,QuestObjective> objectives = new LinkedHashMap<>();
 
-    public Quest(String questID,QuestObjective... objectives){
-        this.questID = questID;
-        pushObjective(objectives);
+    public Quest(String questID){
+        this(questID,questID);
     }
+
+    public Quest(String questID,String displayName){
+        this.questID = questID;
+        this.displayName = displayName;
+
+    }
+
+
 
 
     public Quest pushObjective(QuestObjective... objectives){
         for (QuestObjective objective : objectives) {
             this.objectives.put(objective.getObjectiveID(),objective);
         }
+        cachePlayers();
         return this;
     }
 
@@ -42,7 +54,7 @@ public abstract class Quest {
                 else {
                     onEnd(player);
                     data.addFinishQuest(questID);
-                    data.removeQuest(questID);
+                    data.removeQuestData(questID);
                 };
             }
         });
@@ -62,7 +74,8 @@ public abstract class Quest {
                         onEnd(player);
                         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE,1,1);
                         data.addFinishQuest(questID);
-                        data.removeQuest(questID);
+                        player.sendTitle("","完成任務 ["+displayName+"]");
+                        data.removeQuestData(questID);
                     }
                     break;
                 }
@@ -72,8 +85,20 @@ public abstract class Quest {
 
     public void cancel(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
-            data.removeQuest(questID);
-            objectives.values().forEach(objective -> objective.cancel(player));
+            String objID = data.getOnGoingQuests().get(questID);
+            if(objID != null){
+                getObjective(objID).ifPresent(objective -> {
+                    objective.cancel(player);
+                });
+            }
+            data.removeQuestData(questID);
+            onCancel(player);
+        });
+    }
+
+    public void cancelAll(){
+        objectives.forEach((s, objective) -> {
+            objective.cancelAll();
         });
     }
 
@@ -85,11 +110,17 @@ public abstract class Quest {
 
     }
 
+    public void onCancel(Player player){
+
+    }
+
+    public boolean isCancelAble() {
+        return cancelAble;
+    }
 
     public Optional<QuestObjective> getObjective(String id){
         return Optional.ofNullable(objectives.get(id));
     }
-
 
     public PlayerOption getStartOption(String message, PlayerOption.Result result, boolean canRedo, Condition... conditions){
         return new PlayerOption(message,conditions)
@@ -118,7 +149,38 @@ public abstract class Quest {
 
     public void unregister(){
         for (QuestObjective objective : objectives.values()) {
-            HandlerList.unregisterAll(objective);
+            objective.unregister();
+        }
+    }
+
+    public String getDisplay(){
+        return displayName;
+    }
+
+
+    /**
+     * 當伺服器運行中 重載Script的時候 會跑一遍
+     */
+    private void cachePlayers(){
+        if(PlayerDataSync.getInstance() == null) return;
+
+        for (PlayerQuestDataImpl data : PlayerDataSync.getInstance().getPlayerDatas().getTable(PlayerQuestDataImpl.class).cacheData.values()) {
+            SerializedQuestData questData = data.getQuestData(questID);
+            if(questData != null){
+                getObjective(questData.getObjectiveID()).ifPresent(objective -> {
+                    objective.cachePlayer(Bukkit.getPlayer(data.getUuid()),questData.getObjectiveData());
+                });
+            }
+        }
+    }
+
+    /**
+     * 當玩家登入的時候 PlayerData onDeserialize 時  會把資料傳進來
+     */
+    public void cachePlayer(Player player,SerializedQuestData serializedQuestData){
+        QuestObjective questObjective =objectives.get(serializedQuestData.getObjectiveID());
+        if(questObjective != null){
+            questObjective.cachePlayer(player, serializedQuestData.getObjectiveData());
         }
     }
 

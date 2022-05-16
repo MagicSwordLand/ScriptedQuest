@@ -42,7 +42,7 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
         onlinePlayers.add(player);
         cachedData.put(player.getUniqueId(),data);
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(playerData->{
-            playerData.setQuestData(quest.getQuestID(), new SerializedQuestData(objectiveID,data.toString()));
+            playerData.setQuestData(quest.getQuestID(), objectiveID,data.toString());
         });
     }
 
@@ -50,6 +50,12 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
     public void cancel(Player player){
         super.cancel(player);
         cachedData.remove(player.getUniqueId());
+    }
+
+    @Override
+    public void cancelAll(){
+        super.cancelAll();
+        cachedData.clear();
     }
 
     @Override
@@ -72,28 +78,13 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
         cachedData.put(player.getUniqueId(),gson.fromJson(args,getDataClass()));
     }
 
-    @Override
-    public void cachePlayers(){
-        PlayerDataSync playerDataSync = PlayerDataSync.getInstance();
-        if(playerDataSync != null){
-            playerDataSync.getPlayerDatas().getTable(PlayerQuestDataImpl.class)
-                    .cacheData.values().forEach(data->{
-                        String dataString = data.getObjectiveData(quest.getQuestID(),objectiveID);
-                        if(dataString != null){
-                           Player player = Bukkit.getPlayer(data.getUuid());
-                           cachePlayer(player,dataString);
-                           onlinePlayers.add(player);
-                        }
-                    });
-        }
-    }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onQuit(PlayerQuitEvent event){
         T data = cachedData.get(event.getPlayer().getUniqueId());
         if(data != null){
             PlayerQuestDataImpl.get(event.getPlayer().getUniqueId()).ifPresent(playerData->{
-                playerData.setQuestData(quest.getQuestID(), new SerializedQuestData(objectiveID,data.toString()));
+                playerData.setQuestData(quest.getQuestID(),objectiveID,data.toString());
             });
         }
     }
@@ -115,4 +106,9 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
         return this;
     }
 
+    @Override
+    public void unregister(){
+        super.unregister();
+        cachedData.clear();
+    }
 }

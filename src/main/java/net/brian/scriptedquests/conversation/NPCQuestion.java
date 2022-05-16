@@ -53,6 +53,11 @@ public class NPCQuestion extends NPCMessage {
         return this;
     }
 
+    public NPCQuestion setPriority(int priority){
+        this.priority = priority;
+        return this;
+    }
+
     @Override
     public void send(int npcID,Player player){
         if(Condition.test(player,conditions)){
