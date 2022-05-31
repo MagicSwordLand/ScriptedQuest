@@ -18,7 +18,6 @@ public class CommandManager implements CommandExecutor {
     public CommandManager(ScriptedQuests plugin){
         this.plugin = plugin;
         plugin.getCommand("sQuest").setExecutor(this);
-        subCommands.add(new ListObjectives(plugin));
         subCommands.add(new TrackCommand(plugin));
         subCommands.add(new SkipCommand(plugin));
         subCommands.add(new ResetCommand(plugin));
@@ -52,6 +51,10 @@ public class CommandManager implements CommandExecutor {
             }
         }
         return null;
+    }
+
+    public void register(SubCommand subCommand){
+        subCommands.add(subCommand);
     }
 
 }

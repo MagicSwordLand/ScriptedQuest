@@ -1,6 +1,7 @@
 package net.brian.scriptedquests.compability;
 
 import net.brian.scriptedquests.compability.placeholderapi.QuestPlaceholder;
+import net.brian.scriptedquests.compability.vault.EconomyProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 
@@ -27,6 +28,7 @@ public class CompatibilityAddons {
         if(pluginManager.getPlugin("GPS") != null){
             GPS = true;
         }
+        EconomyProvider.load();
     }
 
     public static boolean hasGPS() {

@@ -84,7 +84,7 @@ public abstract class QuestObjective implements Listener {
         PlayerQuestDataImpl.get(uuid).ifPresent(data->{
             quest.finish(player,objectiveID);
             onlinePlayers.remove(player);
-            if(data.getTrackingObjective().filter(objective -> objective.equals(this)).isPresent()){
+            if(data.getTrackingQuest().equals(quest.getQuestID())){
                 data.endTracking();
             }
 
@@ -99,8 +99,9 @@ public abstract class QuestObjective implements Listener {
         onlinePlayers.add(player);
     }
 
-
-
+    protected void removeCache(Player player){
+        onlinePlayers.remove(player);
+    }
 
 
     public String getObjectiveID() {
@@ -134,7 +135,7 @@ public abstract class QuestObjective implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
-        onlinePlayers.remove(event.getPlayer());
+        removeCache(event.getPlayer());
     }
 
 

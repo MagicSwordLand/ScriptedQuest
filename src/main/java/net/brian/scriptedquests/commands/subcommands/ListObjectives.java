@@ -86,4 +86,45 @@ public class ListObjectives extends SubCommand implements Listener {
         }
     }
 
+    @EventHandler
+    public void onShowCommand(PlayerCommandPreprocessEvent event){
+
+        if(!event.getMessage().startsWith("/showquest")){
+            return;
+        }
+        String[] args = event.getMessage().split(" ");
+        if(args.length < 2) return;
+        String category = args[1];
+        PlayerQuestDataImpl.get(event.getPlayer().getUniqueId()).ifPresent(playerData->{
+            playerData.getOnGoingQuests().forEach((questID,objID)->{
+                if(questID.startsWith(category)){
+                    questManager.getQuest(questID).flatMap(quest -> quest.getObjective(objID)).ifPresent(objective -> {
+
+                    });
+                }
+            });
+        });
+
+        if(args.length == 2){
+            event.setCancelled(true);
+            String pending = pendingConfirm.get(event.getPlayer());
+            if(pending != null){
+                if(pending.equalsIgnoreCase(args[1])){
+                    pendingConfirm.remove(event.getPlayer());
+                    plugin.getQuestManager().getQuest(args[1]).ifPresent(quest -> {
+                        if(quest.isCancelAble()){
+                            quest.cancel(event.getPlayer());
+                            event.getPlayer().sendMessage("§e任務"+quest.getDisplay()+"已取消");
+                        }
+                        else event.getPlayer().sendMessage("§c此任務無法取消");
+                    });
+                }
+            }
+            if(pending == null){
+                event.getPlayer().sendMessage("§e你確定要放棄任務嗎？再次點擊放棄該讓務");
+                pendingConfirm.put(event.getPlayer(),args[1]);
+            }
+        }
+    }
+
 }

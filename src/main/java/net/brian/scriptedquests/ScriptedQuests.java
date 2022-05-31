@@ -15,6 +15,7 @@ public final class ScriptedQuests extends JavaPlugin {
     private static ScriptedQuests plugin;
     private QuestManager questManager;
     private ConversationManager conversationManager;
+    private CommandManager commandManager;
 
     @Override
     public void onEnable() {
@@ -22,7 +23,7 @@ public final class ScriptedQuests extends JavaPlugin {
         plugin = this;
         PlayerDataSync.getInstance().register("quests", PlayerQuestDataImpl.class);
         questManager = new QuestManagerImpl(this);
-        new CommandManager(this);
+        commandManager = new CommandManager(this);
         conversationManager = new ConversationManager(questManager);
         CompatibilityAddons.load();
     }
@@ -43,4 +44,9 @@ public final class ScriptedQuests extends JavaPlugin {
     public ConversationManager getConversationManager() {
         return conversationManager;
     }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
+    }
+
 }

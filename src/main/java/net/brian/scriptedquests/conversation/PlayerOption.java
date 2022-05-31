@@ -59,11 +59,12 @@ public class PlayerOption {
     }
 
     public void process(Player player, int npcID){
-        if(result != null){
-            result.process(player,npcID);
-        }
+
         if(npcMessage != null){
             npcMessage.send(npcID,player);
+        }
+        if(result != null){
+            result.process(player,npcID);
         }
     }
 

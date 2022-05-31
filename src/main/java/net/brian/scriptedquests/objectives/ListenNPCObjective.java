@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,10 +86,19 @@ public class ListenNPCObjective extends NPCObjective {
     @EventHandler
     public void onWalk(PlayerMoveEvent event){
         if(disableWalk){
-            if(listeningPlayer.contains(event.getPlayer())){
-                event.setCancelled(true);
+            if(event.hasChangedPosition()){
+                Vector v = event.getPlayer().getVelocity();
+                if (v.getY() == 0 && listeningPlayer.contains(event.getPlayer())){
+                    event.setCancelled(true);
+                }
             }
         }
+    }
+
+    @Override
+    protected void removeCache(Player player){
+        super.removeCache(player);
+        listeningPlayer.remove(player);
     }
 
 }

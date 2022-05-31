@@ -29,10 +29,12 @@ public class TrackCommand extends SubCommand {
                     }
                 }
                 else if(action.equalsIgnoreCase("end")){
+                    sender.sendMessage("已停止追蹤任務");
                     data.endTracking();
                 }
                 else if(action.equalsIgnoreCase("start")){
                     data.startTracking();
+                    sender.sendMessage("開始追蹤任務");
                 }
             });
 

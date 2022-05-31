@@ -7,6 +7,7 @@ import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.conversation.PlayerOption;
 import net.brian.scriptedquests.data.SerializedQuestData;
+import net.brian.scriptedquests.rewards.Reward;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ public abstract class Quest {
     protected boolean cancelAble = true;
     protected String displayName;
 
+    protected final List<Reward> rewards = new ArrayList<>();
     protected final LinkedHashMap<String,QuestObjective> objectives = new LinkedHashMap<>();
 
     public Quest(String questID){
@@ -33,6 +35,10 @@ public abstract class Quest {
 
 
 
+    public Quest addRewards(Reward... rewards){
+        this.rewards.addAll(Arrays.stream(rewards).toList());
+        return this;
+    }
 
     public Quest pushObjective(QuestObjective... objectives){
         for (QuestObjective objective : objectives) {
@@ -44,6 +50,10 @@ public abstract class Quest {
 
     public void startQuest(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
+            if(data.getMaxQuestAmount() <= data.getOnGoingQuests().size()) {
+                player.sendMessage("你已經到達可接的任務上限，請提高冒險者等級或是放棄部分任務。");
+                return;
+            }
             if(!data.isDoing(questID)){
                 Iterator<Map.Entry<String ,QuestObjective>> it = objectives.entrySet().iterator();
                 if(it.hasNext()){
@@ -72,6 +82,7 @@ public abstract class Quest {
                     }
                     else{
                         onEnd(player);
+                        rewards.forEach(reward -> reward.give(player));
                         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE,1,1);
                         data.addFinishQuest(questID);
                         player.sendTitle("","完成任務 ["+displayName+"]");
@@ -177,7 +188,7 @@ public abstract class Quest {
     /**
      * 當玩家登入的時候 PlayerData onDeserialize 時  會把資料傳進來
      */
-    public void cachePlayer(Player player,SerializedQuestData serializedQuestData){
+    public void cachePlayer(Player player,PlayerQuestDataImpl playerData,SerializedQuestData serializedQuestData){
         QuestObjective questObjective =objectives.get(serializedQuestData.getObjectiveID());
         if(questObjective != null){
             questObjective.cachePlayer(player, serializedQuestData.getObjectiveData());

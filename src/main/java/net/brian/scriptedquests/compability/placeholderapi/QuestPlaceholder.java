@@ -2,8 +2,10 @@ package net.brian.scriptedquests.compability.placeholderapi;
 
 import me.clip.placeholderapi.PlaceholderHook;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
+import net.brian.scriptedquests.data.SerializedQuestData;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -40,9 +42,14 @@ public class QuestPlaceholder extends PlaceholderExpansion {
         return PlayerQuestDataImpl.get(player.getUniqueId())
                 .map(data->{
                     if(args.equals("track")){
-                        Optional<QuestObjective> objective = data.getTrackingObjective();
-                        if(objective.isPresent()){
-                            return objective.get().getInstruction(player);
+                        String trackingQuestID = data.getTrackingQuest();
+                        if(trackingQuestID != null){
+                            SerializedQuestData questData = data.getQuestData(trackingQuestID);
+                            Optional<QuestObjective> objective = ScriptedQuests.getInstance().getQuestManager().getQuest(trackingQuestID)
+                                    .flatMap(quest -> quest.getObjective(questData.getObjectiveID()));
+                            if(objective.isPresent()){
+                                return objective.get().getInstruction(player);
+                            }
                         }
                     }
                     return "";

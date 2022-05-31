@@ -42,7 +42,7 @@ public class ConversationManager implements Listener {
     }
 
 
-    @EventHandler(priority = EventPriority.HIGHEST,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW,ignoreCancelled = true)
     public void onRightClick(NPCRightClickEvent event){
         if(!pendingOptions.containsKey(event.getClicker())){
             NPCRespondProfile npcRespondProfile = questions.get(event.getNPC().getId());
@@ -94,9 +94,13 @@ public class ConversationManager implements Listener {
         if(pair != null){
             Player player = event.getPlayer();
             NPC npc = CitizensAPI.getNPCRegistry().getById(pair.getKey());
-            if(npc != null && player.getLocation().distance(npc.getEntity().getLocation()) > 5){
-                pendingOptions.remove(player);
-                player.sendMessage("§c距離對話者太遠 當前對話已取消");
+            if(npc != null){
+                if(npc.getEntity().getLocation().getWorld() != player.getLocation().getWorld() ||
+                        player.getLocation().distance(npc.getEntity().getLocation()) > 5){
+
+                    pendingOptions.remove(player);
+                    player.sendMessage("§c距離對話者太遠 當前對話已取消");
+                }
             }
         }
     }

@@ -1,7 +1,6 @@
 package net.brian.scriptedquests.api.player;
 
 import net.brian.playerdatasync.PlayerDataSync;
-import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.data.PlayerQuestDataImpl;
 import net.brian.scriptedquests.data.SerializedQuestData;
 
@@ -23,12 +22,16 @@ public interface PlayerQuestData {
 
     void addFinishQuest(String questID);
     boolean hasFinished(String questID);
+    long getLastFinishTimeStamp(String questID);
+    Map<String,Long> getFinishedQuests();
 
+    int getMaxQuestAmount();
+    void setMaxQuestAmount(int amount);
 
     /**
      * Tracking
      */
-    Optional<QuestObjective> getTrackingObjective();
+    String getTrackingQuest();
     void setTrackingQuest(String questID);
     void startTracking();
     void endTracking();

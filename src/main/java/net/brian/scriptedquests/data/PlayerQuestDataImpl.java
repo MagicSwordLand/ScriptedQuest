@@ -5,9 +5,7 @@ import net.brian.playerdatasync.PlayerDataSync;
 import net.brian.playerdatasync.data.PlayerData;
 import net.brian.playerdatasync.data.gson.PostProcessable;
 import net.brian.scriptedquests.ScriptedQuests;
-import net.brian.scriptedquests.api.objectives.data.ObjectiveData;
 import net.brian.scriptedquests.api.player.PlayerQuestData;
-import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.api.quests.QuestManager;
 import net.brian.scriptedquests.compability.CompatibilityAddons;
 import org.bukkit.Bukkit;
@@ -21,9 +19,11 @@ public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData, 
 
     private final HashMap<String,SerializedQuestData> serializedQuestDatas = new HashMap<>();
 
-    private final Set<String> finishedQuestIDs = new HashSet<>();
+    private final HashMap<String,Long> finishedQuestIDs = new HashMap<>();
 
     private String trackingQuestID = "";
+
+    private int maxQuestAmount = 5;
 
 
     public PlayerQuestDataImpl(UUID uuid) {
@@ -81,23 +81,38 @@ public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData, 
 
     @Override
     public void addFinishQuest(String questID) {
-        finishedQuestIDs.add(questID);
+        finishedQuestIDs.put(questID,System.currentTimeMillis());
     }
 
     @Override
     public boolean hasFinished(String questID){
-        return finishedQuestIDs.contains(questID);
+        return finishedQuestIDs.containsKey(questID);
     }
 
     @Override
-    public Optional<QuestObjective> getTrackingObjective() {
-        SerializedQuestData serializedQuestData = serializedQuestDatas.get(trackingQuestID);
-        if(serializedQuestData != null){
-            return ScriptedQuests.getInstance().getQuestManager()
-                    .getQuest(trackingQuestID)
-                    .flatMap(quest -> quest.getObjective(serializedQuestData.getObjectiveID()));
-        }
-        return Optional.empty();
+    public long getLastFinishTimeStamp(String questID){
+        return finishedQuestIDs.getOrDefault(questID,0L);
+    }
+
+    @Override
+    public Map<String, Long> getFinishedQuests() {
+        return (HashMap<String,Long>) finishedQuestIDs.clone();
+    }
+
+
+    @Override
+    public int getMaxQuestAmount() {
+        return maxQuestAmount;
+    }
+
+    @Override
+    public void setMaxQuestAmount(int amount){
+        this.maxQuestAmount = amount;
+    }
+
+    @Override
+    public String getTrackingQuest() {
+        return trackingQuestID;
     }
 
     @Override
@@ -153,7 +168,7 @@ public class PlayerQuestDataImpl extends PlayerData implements PlayerQuestData, 
         Player player = Bukkit.getPlayer(uuid);
         serializedQuestDatas.forEach((questID, serializedData)-> {
             questManager.getQuest(questID).ifPresent(quest -> {
-                quest.cachePlayer(player,serializedData);
+                quest.cachePlayer(player,this,serializedData);
             });
         });
 

@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 public class ListenTalkObjective extends QuestObjective {
 
@@ -76,10 +77,13 @@ public class ListenTalkObjective extends QuestObjective {
     }
 
     @EventHandler
-    public void cancelWalk(PlayerMoveEvent event){
+    public void onWalk(PlayerMoveEvent event){
         if(disableWalk){
-            if(playerIsDoing(event.getPlayer())){
-                event.setCancelled(true);
+            if(event.hasChangedPosition()){
+                Vector v = event.getPlayer().getVelocity();
+                if (v.getY() == 0 && playerIsDoing(event.getPlayer())){
+                    event.setCancelled(true);
+                }
             }
         }
     }
