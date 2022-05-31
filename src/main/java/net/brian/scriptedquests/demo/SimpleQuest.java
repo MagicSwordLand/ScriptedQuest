@@ -36,9 +36,11 @@ public class SimpleQuest extends Quest {
                 "再幫我去帶回xxx好不好")
                 .setInstruction("回去找npc吧!");
 
+        //交物品給npc
         QuestObjective obj4 = new GiveItemObjective(this,"obj4",npcID,"MATERIAL:END",10)
                 .setInstruction(data->"帶回 "+data.getAmount()+"/10 個xxx");
 
+        //聽完對話
         QuestObjective obj5 = new ListenTalkObjective(this,"obj5",
                 "Nice 太贊了",
                 "這是你的獎勵");
@@ -47,7 +49,7 @@ public class SimpleQuest extends Quest {
 
         addRewards(
                 new MoneyReward(new RandomAmount(10,20)),
-                new MMOReward("w","w",new RandomAmount(10,20))
+                new MMOReward("type","id",new RandomAmount(10,20))
         );
 
     }
