@@ -45,6 +45,9 @@ public class SimpleQuest extends Quest {
                 "Nice 太贊了",
                 "這是你的獎勵");
 
+        //註冊任務目標
+        //他會按照順序排給玩家
+        //當玩家完成當前的 objective 就會派發下一個 objective 給他
         pushObjective(obj1,obj2,obj3,obj4,obj5);
 
         addRewards(
