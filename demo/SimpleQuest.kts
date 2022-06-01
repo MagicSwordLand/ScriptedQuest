@@ -39,7 +39,7 @@ class SimpleQuest : Quest("simple-quest-1") {
             .setInstruction { data: IntegerData -> "帶回 ${data.amount}/10 個xxx" }
 
         //聽完對話
-        val obj5: QuestObjective = ListenTalkObjective(this, "obj5",
+        val obj5: QuestObjective = ListenTalkObjective( this, "obj5",
             "Nice 太贊了",
             "這是你的獎勵"
         )

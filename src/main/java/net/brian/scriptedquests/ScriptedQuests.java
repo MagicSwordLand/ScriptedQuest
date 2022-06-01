@@ -31,6 +31,7 @@ public final class ScriptedQuests extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+
     }
 
     public static ScriptedQuests getInstance() {
