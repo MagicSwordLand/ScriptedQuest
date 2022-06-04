@@ -3,25 +3,26 @@ package net.brian.scriptedquests.rewards;
 import net.brian.classcore.players.PlayerClassProfile;
 import org.bukkit.entity.Player;
 
-import java.util.Random;
+public class ClassExpReward extends Reward {
 
-public class ClassExpReward implements Reward {
 
-    RandomAmount randomAmount;
-    public ClassExpReward(RandomAmount randomAmount){
-        this.randomAmount = randomAmount;
+    public ClassExpReward(Number amount){
+        super(amount);
     }
 
-    public ClassExpReward(int amount){
-        this(new RandomAmount(amount,amount));
-    }
 
 
     @Override
-    public void give(Player player) {
+    public void give(Player player,Number number) {
         PlayerClassProfile.get(player.getUniqueId()).ifPresent(profile -> {
-            profile.addExp(randomAmount.getInt());
+            profile.addExp(number.intValue());
         });
+
+    }
+
+    @Override
+    public String getMessage(Number amount) {
+        return "§a➯ §7經驗: §f"+amount;
     }
 
 }

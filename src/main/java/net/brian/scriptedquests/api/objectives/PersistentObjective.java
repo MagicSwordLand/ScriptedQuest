@@ -38,8 +38,8 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
 
     @Override
     public void start(Player player){
+        super.start(player);
         T data = newObjectiveData();
-        onlinePlayers.add(player);
         cachedData.put(player.getUniqueId(),data);
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(playerData->{
             playerData.setQuestData(quest.getQuestID(), objectiveID,data.toString());
@@ -95,6 +95,7 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
             return super.getInstruction(player);
         }
         T data = cachedData.get(player.getUniqueId());
+        if(data == null) data = newObjectiveData();
         if(data != null){
             return PlaceholderAPI.setPlaceholders(player,instructionQuery.get(data));
         }
@@ -110,5 +111,11 @@ public abstract class PersistentObjective<T extends ObjectiveData> extends Quest
     public void unregister(){
         super.unregister();
         cachedData.clear();
+    }
+
+    @Override
+    protected void removeCache(Player player){
+        super.removeCache(player);
+        cachedData.remove(player.getUniqueId());
     }
 }

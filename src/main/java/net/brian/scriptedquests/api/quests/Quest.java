@@ -82,11 +82,18 @@ public abstract class Quest {
                     }
                     else{
                         onEnd(player);
-                        rewards.forEach(reward -> reward.give(player));
-                        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE,1,1);
-                        data.addFinishQuest(questID);
-                        player.sendTitle("","完成任務 ["+displayName+"]");
                         data.removeQuestData(questID);
+                        data.addFinishQuest(questID);
+                        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE,1,1);
+
+                        player.sendMessage("§7§m━━━━━━━━━━━━━━━━━━━━━━§3 ✦ §a§l§n委託完成§3 ✦ §7§m━━━━━━━━━━━━━━━━━━━━━━",
+                                "","§e✍ §f"+displayName);
+                        rewards.stream().map(Reward::generateLootBag).forEach(lootBag -> {
+                            player.sendMessage(lootBag.getMessage());
+                            lootBag.give(player);
+                        });
+                        player.sendMessage("","§7§m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                        player.sendTitle("完成 "+displayName,"");
                     }
                     break;
                 }

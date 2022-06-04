@@ -3,20 +3,22 @@ package net.brian.scriptedquests.rewards;
 import net.brian.questlevel.data.PlayerQuestLevel;
 import org.bukkit.entity.Player;
 
-import java.util.Random;
+public class QuestExpReward extends Reward{
 
-public class QuestExpReward implements Reward{
-
-
-    private final RandomAmount amount;
-    public QuestExpReward(RandomAmount amount){
-        this.amount = amount;
+    public QuestExpReward(Number amount){
+        super(amount);
     }
 
     @Override
-    public void give(Player player) {
+    public void give(Player player,Number amount) {
         PlayerQuestLevel.get(player.getUniqueId()).ifPresent(data->{
-            data.addPoints(amount.getInt());
+            data.addPoints(amount.intValue());
         });
     }
+
+    @Override
+    protected String getMessage(Number amount) {
+        return "§a➯ §7傭兵積分: §f"+amount;
+    }
+
 }

@@ -5,6 +5,7 @@ import net.brian.playerdatasync.events.PlayerDataFetchComplete;
 import net.brian.scriptedquests.ScriptedQuests;
 import net.brian.scriptedquests.api.objectives.QuestObjective;
 import net.brian.scriptedquests.api.quests.Quest;
+import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -73,6 +74,13 @@ public class ListenTalkObjective extends QuestObjective {
     public void onLoaded(PlayerDataFetchComplete event){
         if(playerIsDoing(event.getPlayer())){
             send(event.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onClick(NPCRightClickEvent event){
+        if(playerIsDoing(event.getClicker())){
+            event.setCancelled(true);
         }
     }
 

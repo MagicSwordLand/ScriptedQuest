@@ -40,7 +40,7 @@ public abstract class TimeLimitQuest extends Quest {
 
     public void onStart(Player player){
         long remainTime = interval-((System.currentTimeMillis()-startTime)%interval);
-        player.sendMessage("§7[§a任務§7] §f已開始限時任務，你還有 "+TimeUnit.getDisplayTime(remainTime)+" 可完成此任務");
+        player.sendMessage("§f已開始限時任務 "+displayName+"，你還有 "+TimeUnit.getDisplayTime(remainTime)+" 可完成此任務");
     }
 
 
@@ -48,7 +48,7 @@ public abstract class TimeLimitQuest extends Quest {
         bukkitTask = Bukkit.getScheduler().runTaskLater(ScriptedQuests.getInstance(),()->{
             objectives.values().forEach(objective -> {
                 objective.getOnlinePlayers().forEach(player -> {
-                    player.sendMessage("§7[§a任務§7]§f "+displayName+" 已超時，判定為失敗");
+                    player.sendMessage(displayName+" 已超時，判定為失敗");
                 });
                 objective.cancelAll();
             });

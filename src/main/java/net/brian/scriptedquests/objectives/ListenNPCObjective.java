@@ -75,7 +75,6 @@ public class ListenNPCObjective extends NPCObjective {
                     }
                     else {
                         finish(player);
-                        listeningPlayer.remove(player);
                         cancel();
                     }
                 }
@@ -93,6 +92,19 @@ public class ListenNPCObjective extends NPCObjective {
                 }
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onClickNPC(NPCRightClickEvent event){
+        if(listeningPlayer.contains(event.getClicker())){
+            event.setCancelled(true);
+        }
+    }
+
+    @Override
+    public void finish(Player player){
+        super.finish(player);
+        listeningPlayer.remove(player);
     }
 
     @Override

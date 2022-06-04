@@ -3,22 +3,23 @@ package net.brian.scriptedquests.rewards;
 import net.brian.scriptedquests.compability.vault.EconomyProvider;
 import org.bukkit.entity.Player;
 
-import java.util.Random;
-
-public class MoneyReward implements Reward{
+public class MoneyReward extends Reward {
 
 
-    RandomAmount randomAmount;
-    public MoneyReward(RandomAmount randomAmount){
-        this.randomAmount = randomAmount;
-    }
-    public MoneyReward(float amount){
-        randomAmount = new RandomAmount(amount,amount);
+
+    public MoneyReward(Number amount){
+        super(amount);
     }
 
     @Override
-    public void give(Player player) {
-        EconomyProvider.give(player, randomAmount.getFloat());
+    public void give(Player player,Number number) {
+        EconomyProvider.give(player, number.floatValue());
     }
+
+    @Override
+    protected String getMessage(Number amount) {
+        return "§a➯ §7錢幣: §f"+amount;
+    }
+
 
 }

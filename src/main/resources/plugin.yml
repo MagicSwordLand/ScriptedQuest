@@ -6,6 +6,7 @@ commands:
   sQuest:
     aliases:
       - sq
+  fishevent:
 depend:
   - MythicMobs
   - GPS

@@ -52,15 +52,25 @@ public abstract class QuestObjective implements Listener {
     public void start(Player player){
         PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
             data.setQuestData(quest.getQuestID(),objectiveID,null);
-        });
-        onlinePlayers.add(player);
-        String instruction = getInstruction(player);
-
-        if(instruction != null && !instruction.equals("")){
+            onlinePlayers.add(player);
             player.sendTitle("","[任務目標] "+getInstruction(player));
-        }
+
+            Bukkit.getScheduler().runTaskLater(ScriptedQuests.getInstance(),()->{
+                player.sendMessage(
+                        "§7§m━━━━━━━━━━━━━━━━━━━━━━§3 ✦ §b§l§n委託更新§3 ✦ §7§m━━━━━━━━━━━━━━━━━━━━━━",
+                        "",
+                        "§e✍ §f"+quest.getDisplay(),
+                        "§b✎ §7"+this.getInstruction(player),
+                        "",
+                        "§7§m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                );
+            },40);
+        });
     }
 
+    /**
+     * Should only be triggered by its quest parent
+     */
     public void cancel(Player player){
         if(onlinePlayers.contains(player)){
             quest.onCancel(player);
@@ -70,8 +80,8 @@ public abstract class QuestObjective implements Listener {
 
     public void cancelAll(){
         onlinePlayers.forEach(player -> {
-            quest.onCancel(player);
             PlayerQuestDataImpl.get(player.getUniqueId()).ifPresent(data->{
+                quest.onCancel(player);
                 data.removeQuestData(quest.getQuestID());
             });
         });
@@ -87,11 +97,12 @@ public abstract class QuestObjective implements Listener {
             if(data.getTrackingQuest().equals(quest.getQuestID())){
                 data.endTracking();
             }
-
+            if(endProcess != null){
+                endProcess.run(player);
+            }
         });
-        if(endProcess != null){
-            endProcess.run(player);
-        }
+
+
     }
 
 
