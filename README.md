@@ -1,9 +1,11 @@
 # ScriptedQuest
-
 Write fully customized and expandable quests.
 
 
 
+## QuickStart
+
+First create a QuestClass.
 
 
 
@@ -24,7 +26,9 @@ import org.bukkit.entity.Player;
 public class SimpleQuest extends Quest {
 
     public SimpleQuest() {
+        //id of the quest
         super("simple-quest-1");
+        
 
         final int npcID = 10;
 
@@ -74,3 +78,11 @@ public class SimpleQuest extends Quest {
     }
 }
 ```
+
+After writing a quest, register it to the quest manager.
+```java
+ScriptedQuests.getInstance().getQuestManager().register(SimpleQuest());
+```
+
+After registering, run this command in the game to start it for a player.
+`/squests start <player> simple-quest-1`
