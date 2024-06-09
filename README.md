@@ -84,5 +84,5 @@ After writing a quest, register it to the quest manager.
 ScriptedQuests.getInstance().getQuestManager().register(SimpleQuest());
 ```
 
-After registering, run this command in the game to start it for a player.
+After registering, run this command in the game to start it for a player.  
 `/squests start <player> simple-quest-1`
